@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox
 {
@@ -10,7 +8,24 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
+            const string sourceFile = "SampleManifest.xml";
+            var plugins = GetPluginManifest(sourceFile);
 
+            Console.ReadKey();
+        }
+
+        public static PluginManifest GetPluginManifest(string filePath)
+        {
+            return DeserialiseFromFile<PluginManifest>(filePath);
+        }
+
+        public static T DeserialiseFromFile<T>(string path)
+        {
+            XmlSerializer xmlSer = new XmlSerializer(typeof(T));
+            using (FileStream fs = File.OpenRead(path))
+            {
+                return (T)xmlSer.Deserialize(fs);
+            }
         }
     }
 }
