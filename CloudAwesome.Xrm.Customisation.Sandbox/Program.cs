@@ -8,8 +8,31 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
+            // 1. Get and Display the XML manifest
             const string sourceFile = "SampleManifest.xml";
             var plugins = GetPluginManifest(sourceFile);
+
+            foreach (var plugin in plugins.Plugins)
+            {
+                Console.WriteLine($"FriendlyName = {plugin.FriendlyName}; PluginType = {plugin.PluginType}");
+            }
+
+            // 2. Register DLL
+
+
+            // 3. Register Steps
+
+
+            // 4. Register WF actions
+
+
+            // 5. Add everything to specified solution
+
+
+            // 6. Remove anything unwanted? 
+            //      (Or clobber before registering?)
+
+
 
             Console.ReadKey();
         }

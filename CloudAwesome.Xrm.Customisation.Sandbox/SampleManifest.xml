@@ -31,7 +31,7 @@
     </Plugin>
     <Plugin>
       <PluginType>CustomWorkflow</PluginType>
-      <FriendlyName>Do Something</FriendlyName>
+      <FriendlyName>Do Something Else</FriendlyName>
       <Reference>../bin/release/CloudAwesome.Xrm.Plugins.dll</Reference>
       <CodeRef>../CloudAwesome.Xrm.Plugins/DoSomething.cs</CodeRef>
       <Stage>PostOperation</Stage>
