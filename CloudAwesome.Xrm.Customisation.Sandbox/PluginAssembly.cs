@@ -1,6 +1,6 @@
 ﻿namespace CloudAwesome.Xrm.Customisation.Sandbox
 {
-    public class Plugin
+    public class PluginAssembly
     {
         public PluginType PluginType { get; set; }
         public string FriendlyName { get; set; }

@@ -12,7 +12,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             const string sourceFile = "SampleManifest.xml";
             var plugins = GetPluginManifest(sourceFile);
 
-            foreach (var plugin in plugins.Plugins)
+            foreach (var plugin in plugins.PluginAssemblies)
             {
                 Console.WriteLine($"FriendlyName = {plugin.FriendlyName}; PluginType = {plugin.PluginType}");
             }

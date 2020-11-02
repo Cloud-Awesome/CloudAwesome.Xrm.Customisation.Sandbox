@@ -1,0 +1,99 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema attributeFormDefault="unqualified" elementFormDefault="qualified" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <xs:element name="pluginManifest">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="pluginAssemblies">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="pluginAssembly">
+                <xs:complexType>
+                  <xs:sequence>
+                    <xs:element name="name" type="xs:string" />
+                    <xs:element name="assembly" type="xs:string" />
+                    <xs:element name="isolationMode" type="xs:string" />
+                    <xs:element name="solutionName" type="xs:string" />
+                    <xs:element name="plugins">
+                      <xs:complexType>
+                        <xs:sequence>
+                          <xs:element maxOccurs="unbounded" name="plugin">
+                            <xs:complexType>
+                              <xs:sequence>
+                                <xs:element name="name" type="xs:string" />
+                                <xs:element name="friendlyName" type="xs:string" />
+                                <xs:element name="description" type="xs:string" />
+                                <xs:element minOccurs="0" name="steps">
+                                  <xs:complexType>
+                                    <xs:sequence>
+                                      <xs:element name="step">
+                                        <xs:complexType>
+                                          <xs:sequence>
+                                            <xs:element name="friendlyName" type="xs:string" />
+                                            <xs:element name="description" type="xs:string" />
+                                            <xs:element name="stage" type="xs:string" />
+                                            <xs:element name="executionMode" type="xs:string" />
+                                            <xs:element name="message" type="xs:string" />
+                                            <xs:element name="primaryEntity" type="xs:string" />
+                                            <xs:element name="executionOrder" type="xs:unsignedByte" />
+                                            <xs:element name="asyncAutoDelete" type="xs:boolean" />
+                                            <xs:element name="entityImages">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element name="entityImage">
+                                                    <xs:complexType>
+                                                      <xs:sequence>
+                                                        <xs:element name="name" type="xs:string" />
+                                                        <xs:element name="type" type="xs:string" />
+                                                        <xs:element name="attributes">
+                                                          <xs:complexType>
+                                                            <xs:sequence>
+                                                              <xs:element maxOccurs="unbounded" name="attribute" type="xs:string" />
+                                                            </xs:sequence>
+                                                          </xs:complexType>
+                                                        </xs:element>
+                                                      </xs:sequence>
+                                                    </xs:complexType>
+                                                  </xs:element>
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="filteringAttributes">
+                                              <xs:complexType>
+                                                <xs:sequence>
+                                                  <xs:element maxOccurs="unbounded" name="attribute" type="xs:string" />
+                                                </xs:sequence>
+                                              </xs:complexType>
+                                            </xs:element>
+                                            <xs:element name="unsecureConfiguration" type="xs:string" />
+                                            <xs:element name="secureConfiguration" type="xs:string" />
+                                          </xs:sequence>
+                                        </xs:complexType>
+                                      </xs:element>
+                                    </xs:sequence>
+                                  </xs:complexType>
+                                </xs:element>
+                              </xs:sequence>
+                            </xs:complexType>
+                          </xs:element>
+                        </xs:sequence>
+                      </xs:complexType>
+                    </xs:element>
+                  </xs:sequence>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+          </xs:complexType>
+        </xs:element>
+        <xs:element name="cdsConnectionString" type="xs:string" />
+        <xs:element name="cdsUrl" type="xs:string" />
+        <xs:element name="cdsUserName" type="xs:string" />
+        <xs:element name="cdsPassword" type="xs:string" />
+        <xs:element name="cdsAppId" type="xs:string" />
+        <xs:element name="cdsAppSecret" type="xs:string" />
+        <xs:element name="serviceEndpoints" type="xs:string" />
+        <xs:element name="webhooks" type="xs:string" />
+        <xs:element name="workflows" type="xs:string" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+</xs:schema>

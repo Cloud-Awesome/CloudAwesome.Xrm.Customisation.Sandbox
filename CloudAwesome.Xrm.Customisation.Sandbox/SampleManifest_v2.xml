@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<pluginManifest>
+  <pluginAssemblies>
+    <pluginAssembly>
+      <!-- 1. Get Base64 from this file and Upsert it to CRM. Add to solution -->
+      <name>...</name>
+      <assembly>../bin/release/CloudAwesome.Xrm.Plugins.dll</assembly>
+      <isolationMode>Sandbox</isolationMode>
+      <solutionName>...</solutionName>
+      <plugins>
+        <!-- 2. For each plugin listed here, register/upsert it to the assembly from #1. Add to solution -->
+        <plugin>
+          <name>CloudAwesome.Xrm.Plugins.ContactCreatePlugin</name>
+          <friendlyName>Create Contact</friendlyName>
+          <description>...</description>
+          <steps>
+            <!-- 3. For each step listed here, register/upsert it against its parent plugin from #2 -->
+            <step>
+              <friendlyName>...</friendlyName>
+              <description>...</description>
+              <stage>PostOperation</stage>
+              <executionMode>Synchronous</executionMode>
+              <message>Create</message>
+              <primaryEntity>contact</primaryEntity>
+              <executionOrder>1</executionOrder>
+              <asyncAutoDelete>false</asyncAutoDelete>
+              <filteringAttributes>
+                <attribute>firstname</attribute>
+                <attribute>middlename</attribute>
+                <attribute>lastname</attribute>
+              </filteringAttributes>
+              <unsecureConfiguration>...</unsecureConfiguration>
+              <secureConfiguration>...</secureConfiguration>
+              <entityImages>
+                  <!-- 4. For each image listed here, upsert it to the parent plugin step from #4 -->
+                <entityImage>
+                  <name>ContactImage</name>
+                  <type>PreImage</type>
+                  <attributes>
+                    <attribute>firstname</attribute>
+                    <attribute>middlename</attribute>
+                    <attribute>lastname</attribute>
+                  </attributes>
+                </entityImage>
+              </entityImages>
+            </step>
+          </steps>
+        </plugin>
+        <plugin>
+          <name>CloudAwesome.Xrm.Plugins.ContactUpdatePlugin</name>
+          <friendlyName>Update Contact</friendlyName>
+          <description>...</description>
+        </plugin>
+      </plugins>
+    </pluginAssembly>
+  </pluginAssemblies>
+
+  <!-- CDS connection details -->
+  <!-- Can provide any of the below, or none if provided outside of config file (e.g. manual in CLI or from Key Vault -->
+  <ConnectionType>AppRegistration</ConnectionType>
+  <CdsConnectionString>...</CdsConnectionString>
+  <CdsUrl>...</CdsUrl>
+  <CdsUserName>...</CdsUserName>
+  <CdsPassword>...</CdsPassword>
+  <CdsAppId>...</CdsAppId>
+  <CdsAppSecret>...</CdsAppSecret>
+  <!-- CDS connection details -->
+
+  <!-- post-MVP -->
+  <serviceEndpoints>...</serviceEndpoints>
+  <webhooks>...</webhooks>
+  <!-- post-MVP -->
+
+  <!-- post-post-MVP -->
+  <workflows>Maybe not as they're being deprecated..?</workflows>
+  <!-- post-post-MVP -->
+
+</pluginManifest>
