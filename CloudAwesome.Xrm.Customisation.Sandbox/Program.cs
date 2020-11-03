@@ -12,24 +12,24 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         {
             // 1. Get and Display the XML manifest
             const string sourceFile = "../../SampleManifest_v2.xml";
-            var plugins = GetPluginManifest(sourceFile);
+            var manifest = GetPluginManifest(sourceFile);
 
-            foreach (var plugin in plugins.PluginAssemblies)
+            foreach (var pluginAssembly in manifest.PluginAssemblies)
             {
-                Console.WriteLine($"Assembly FriendlyName = {plugin.FriendlyName};");
+                Console.WriteLine($"Assembly FriendlyName = {pluginAssembly.FriendlyName};");
 
-                foreach (var pluginType in plugin.Plugins)
+                foreach (var plugin in pluginAssembly.Plugins)
                 {
-                    Console.WriteLine($"    PluginType FriendlyName = {pluginType.FriendlyName}");
+                    Console.WriteLine($"    PluginType FriendlyName = {plugin.FriendlyName}");
 
-                    if (pluginType.Steps == null)
+                    if (plugin.Steps == null)
                     {
                         continue;
                     }
 
-                    foreach (var step in pluginType.Steps)
+                    foreach (var step in plugin.Steps)
                     {
-                        Console.WriteLine($"        Step = {step.Name}");
+                        Console.WriteLine($"        Step = {step.FriendlyName}");
                     }
                 }
             }
