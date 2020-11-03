@@ -1,13 +1,9 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Xml.Serialization;
-
-namespace CloudAwesome.Xrm.Customisation.Sandbox
+﻿namespace CloudAwesome.Xrm.Customisation.Sandbox.PluginModels
 {
+    public enum CdsConnectionType { AppRegistration, ConnectionString, UserNameAndPassword }
+
     public class PluginManifest
     {
-        public enum CdsConnectionType { AppRegistration, ConnectionString, UserNameAndPassword }
-
         public PluginAssembly[] PluginAssemblies { get; set; }
 
         public ServiceEndpoint[] ServiceEndpoints { get; set; }
@@ -15,6 +11,8 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         public Webhook[] Webhooks { get; set; }
 
         public WorkflowAssembly[] WorkflowAssemblies { get; set; }
+
+        public string SolutionName { get; set; }
 
         public CdsConnectionType ConnectionType { get; set; }
 

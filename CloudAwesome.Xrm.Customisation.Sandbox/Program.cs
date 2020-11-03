@@ -2,6 +2,8 @@
 using System.IO;
 using System.Xml.Serialization;
 
+using CloudAwesome.Xrm.Customisation.Sandbox.PluginModels;
+
 namespace CloudAwesome.Xrm.Customisation.Sandbox
 {
     class Program
@@ -9,12 +11,27 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         static void Main(string[] args)
         {
             // 1. Get and Display the XML manifest
-            const string sourceFile = "SampleManifest.xml";
+            const string sourceFile = "../../SampleManifest_v2.xml";
             var plugins = GetPluginManifest(sourceFile);
 
             foreach (var plugin in plugins.PluginAssemblies)
             {
-                Console.WriteLine($"FriendlyName = {plugin.FriendlyName}; PluginType = {plugin.PluginType}");
+                Console.WriteLine($"Assembly FriendlyName = {plugin.FriendlyName};");
+
+                foreach (var pluginType in plugin.Plugins)
+                {
+                    Console.WriteLine($"    PluginType FriendlyName = {pluginType.FriendlyName}");
+
+                    if (pluginType.Steps == null)
+                    {
+                        continue;
+                    }
+
+                    foreach (var step in pluginType.Steps)
+                    {
+                        Console.WriteLine($"        Step = {step.Name}");
+                    }
+                }
             }
 
             // 2. Register DLL
