@@ -10,6 +10,13 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
+            
+            
+            Console.ReadKey();
+        }
+
+        public void Run()
+        {
             // 1. Get and Display the XML manifest
             const string sourceFile = "../../SampleManifest_v2.xml";
             var manifest = GetPluginManifest(sourceFile);
@@ -49,9 +56,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             // 6. Remove anything unwanted? 
             //      (Or clobber before registering?)
 
-
-
-            Console.ReadKey();
         }
 
         public static PluginManifest GetPluginManifest(string filePath)
