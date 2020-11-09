@@ -5,7 +5,7 @@
       <!-- 1. Get Base64 from this file and Upsert it to CRM. Add to solution -->
       <Name>...</Name>
       <FriendlyName>Contact Plugins</FriendlyName>
-      <Assembly>../bin/release/CloudAwesome.Xrm.Plugins.dll</Assembly>
+      <Assembly>../../../SamplePluginAssembly/bin/debug/SamplePluginAssembly.dll</Assembly>
       <IsolationMode>Sandbox</IsolationMode>
       <SolutionName>...</SolutionName>
       <Plugins>
