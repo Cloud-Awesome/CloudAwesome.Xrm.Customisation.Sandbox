@@ -13,15 +13,14 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
-            Run();
+            Run("../../SampleManifest_v2.xml");
             Console.ReadKey();
         }
 
-        public static void Run()
+        public static void Run(string manifestSourceFile)
         {
             // 1. Get and Display the XML manifest
-            const string sourceFile = "../../SampleManifest_v2.xml";
-            var manifest = GetPluginManifest(sourceFile);
+            var manifest = GetPluginManifest(manifestSourceFile);
 
             foreach (var pluginAssembly in manifest.PluginAssemblies)
             {
@@ -44,6 +43,9 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     IsolationMode = PluginAssembly_IsolationMode.Sandbox, // Only Sandbox supported now
                     Content = Convert.ToBase64String(File.ReadAllBytes(pluginAssembly.Assembly))
                 };
+
+                // TODO - Query target environment to see if it already exists. Update if it does
+                // Or have an upsert function to save duplication..?
 
                 // TODO - Reference Core for Entity Extensions
                 // var assemblyId = assemblyEntity.Create();
