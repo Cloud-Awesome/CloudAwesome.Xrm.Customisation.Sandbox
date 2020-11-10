@@ -42,17 +42,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 var culture = assemblyParts[2].Split('=')[1].Trim();
                 var publicKeyToken = assemblyParts[3].Split('=')[1].Trim();
 
-                //Entity assemblyEntity = new Entity("pluginassembly")
-                //{
-                //    ["name"] = pluginAssembly.Name,
-                //    ["culture"] = culture,
-                //    ["version"] = version,
-                //    ["publickeytoken"] = publicKeyToken,
-                //    ["sourcetype"] = new OptionSetValue(0),
-                //    ["isolationmode"] = new OptionSetValue(2),
-                //    ["content"] = Convert.ToBase64String(File.ReadAllBytes(pluginAssembly.Assembly))
-                //};
-
                 PluginAssembly assemblyEntity = new PluginAssembly()
                 {
                     Name = pluginAssembly.Name,
@@ -136,7 +125,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             }
 
             Console.WriteLine("All done... So far...");
-            Console.ReadKey();
 
             // 6. Register Service Endpoints
 
