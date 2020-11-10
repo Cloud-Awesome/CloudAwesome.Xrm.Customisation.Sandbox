@@ -7,7 +7,7 @@ namespace SamplePluginAssembly
     {
         public void Execute(IServiceProvider serviceProvider)
         {
-            throw new NotImplementedException();
+            var test = string.Empty;
         }
     }
 }
