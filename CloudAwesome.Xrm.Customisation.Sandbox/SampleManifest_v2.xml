@@ -2,27 +2,24 @@
 <PluginManifest>
   <PluginAssemblies>
     <PluginAssembly>
-      <!-- 1. Get Base64 from this file and Upsert it to CRM. Add to solution -->
       <Name>SamplePluginAssembly</Name>
       <FriendlyName>Contact Plugins</FriendlyName>
       <Assembly>../../../SamplePluginAssembly/bin/debug/SamplePluginAssembly.dll</Assembly>
       <IsolationMode>Sandbox</IsolationMode>
       <SolutionName>...</SolutionName>
       <Plugins>
-        <!-- 2. For each plugin listed here, register/upsert it to the assembly from #1. Add to solution -->
         <Plugin>
           <Name>SamplePluginAssembly.UpdateContact</Name>
           <FriendlyName>Update Contact</FriendlyName>
           <Description>...</Description>
           <Steps>
-            <!-- 3. For each step listed here, register/upsert it against its parent plugin from #2 -->
             <Step>
               <Name>Create Contact: On Create of Contact</Name>
               <FriendlyName>Create Contact: On Create of Contact</FriendlyName>
               <Description>...</Description>
               <stage>PostOperation</stage>
               <ExecutionMode>Synchronous</ExecutionMode>
-              <Message>Create</Message>
+              <Message>update</Message>
               <PrimaryEntity>contact</PrimaryEntity>
               <ExecutionOrder>1</ExecutionOrder>
               <AsyncAutoDelete>false</AsyncAutoDelete>
@@ -34,7 +31,6 @@
               <UnsecureConfiguration>...</UnsecureConfiguration>
               <SecureConfiguration>...</SecureConfiguration>
               <EntityImages>
-                  <!-- 4. For each image listed here, upsert it to the parent plugin step from #4 -->
                 <EntityImage>
                   <Name>ContactImage</Name>
                   <Type>PreImage</Type>
@@ -48,11 +44,42 @@
             </Step>
           </Steps>
         </Plugin>
-        <!--<Plugin>
-          <Name>CloudAwesome.Xrm.Plugins.ContactUpdatePlugin</Name>
-          <FriendlyName>Update Contact</FriendlyName>
-          <Description>...</Description>
-        </Plugin>-->
+        <Plugin>
+          <Name>SamplePluginAssembly.UpdateAccount</Name>
+          <FriendlyName>Update Account</FriendlyName>
+          <Description>Triggers on updates of an account record</Description>
+          <Steps>
+            <Step>
+              <Name>Update Account: On Update of an Account</Name>
+              <FriendlyName>Update Account: On Update of an Account</FriendlyName>
+              <Description>...</Description>
+              <stage>PostOperation</stage>
+              <ExecutionMode>Synchronous</ExecutionMode>
+              <Message>update</Message>
+              <PrimaryEntity>account</PrimaryEntity>
+              <ExecutionOrder>1</ExecutionOrder>
+              <AsyncAutoDelete>true</AsyncAutoDelete>
+              <FilteringAttributes>
+                <Attribute>firstname</Attribute>
+                <Attribute>middlename</Attribute>
+                <Attribute>lastname</Attribute>
+              </FilteringAttributes>
+              <UnsecureConfiguration>...</UnsecureConfiguration>
+              <SecureConfiguration>...</SecureConfiguration>
+              <EntityImages>
+                <EntityImage>
+                  <Name>AccountImage</Name>
+                  <Type>PreImage</Type>
+                  <Attributes>
+                    <Attribute>firstname</Attribute>
+                    <Attribute>middlename</Attribute>
+                    <Attribute>lastname</Attribute>
+                  </Attributes>
+                </EntityImage>
+              </EntityImages>
+            </Step>
+          </Steps>
+        </Plugin>
       </Plugins>
     </PluginAssembly>
   </PluginAssemblies>

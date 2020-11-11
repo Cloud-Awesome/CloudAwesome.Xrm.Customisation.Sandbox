@@ -1,10 +1,12 @@
 ﻿using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Xml.Serialization;
 using CloudAwesome.Xrm.Customisation.Sandbox.EntityModel;
 using CloudAwesome.Xrm.Customisation.Sandbox.PluginModels;
 using Microsoft.Xrm.Sdk;
+using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
 
@@ -42,7 +44,25 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 var culture = assemblyParts[2].Split('=')[1].Trim();
                 var publicKeyToken = assemblyParts[3].Split('=')[1].Trim();
 
-                PluginAssembly assemblyEntity = new PluginAssembly()
+                // Check if assembly already exists
+                var assemblyQuery = new QueryExpression()
+                {
+                    EntityName = PluginAssembly.EntityLogicalName,
+                    ColumnSet = new ColumnSet(PluginAssembly.PrimaryIdAttribute, PluginAssembly.PrimaryNameAttribute),
+                    Criteria = new FilterExpression()
+                    {
+                        Conditions =
+                        {
+                            new ConditionExpression(PluginAssembly.PrimaryNameAttribute, ConditionOperator.Equal, pluginAssembly.Name),
+                            new ConditionExpression("version", ConditionOperator.Equal, version)
+                        }
+                    }
+                };
+
+                var assemblyResults = client.RetrieveMultiple(assemblyQuery);
+
+                var createdAssembly = new EntityReference(PluginAssembly.EntityLogicalName);
+                var assemblyEntity = new PluginAssembly()
                 {
                     Name = pluginAssembly.Name,
                     Culture = culture,
@@ -53,28 +73,73 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     Content = Convert.ToBase64String(File.ReadAllBytes(pluginAssembly.Assembly))
                 };
 
-                // TODO - Query target environment to see if it already exists. Update if it does
-                // Or have an upsert function to save duplication..?
+                if (assemblyResults.Entities.Count == 0)
+                {
+                    // Create
+                    createdAssembly.Id = client.Create(assemblyEntity);
 
-                // TODO - Reference Core for Entity Extensions
-                // var assemblyId = assemblyEntity.Create();
-                var createdAssembly = client.Create(assemblyEntity);
-                
+                    // TODO - Reference Core for Entity Extensions
+                    // var assemblyId = assemblyEntity.Create();
+                }
+                else
+                {
+                    // Update
+                    createdAssembly.Id = assemblyResults.Entities.FirstOrDefault().Id;
+                    assemblyEntity.Id = createdAssembly.Id;
+                    client.Update(assemblyEntity);
+
+                    // TODO - Reference Core for Entity Extensions
+                    //assemblyEntity.Update();
+                }
+
                 foreach (var plugin in pluginAssembly.Plugins)
                 {
                     // 3. Register plugins
                     Console.WriteLine($"    PluginType FriendlyName = {plugin.FriendlyName}");
 
+                    var pluginQuery = new QueryExpression()
+                    {
+                        EntityName = PluginType.EntityLogicalName,
+                        ColumnSet = new ColumnSet(PluginType.PrimaryIdAttribute, PluginType.PrimaryNameAttribute),
+                        Criteria = new FilterExpression()
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression(PluginType.PrimaryNameAttribute, ConditionOperator.Equal, plugin.Name),
+                                new ConditionExpression("pluginassemblyid", ConditionOperator.Equal, createdAssembly.Id)
+                            }
+                        }
+                    };
+                    var pluginResults = client.RetrieveMultiple(pluginQuery);
+
                     PluginType pluginType = new PluginType()
                     {
-                        PluginAssemblyId = new EntityReference("pluginassembly", createdAssembly),
+                        PluginAssemblyId = createdAssembly,
                         TypeName = plugin.Name,
                         FriendlyName = plugin.FriendlyName,
                         Name = plugin.Name,
                         Description = plugin.Description
                     };
 
-                    var createdPluginType = client.Create(pluginType);
+                    var createdPluginType = new EntityReference(PluginType.EntityLogicalName);
+                    if (pluginResults.Entities.Count == 0)
+                    {
+                        // Create
+                        createdPluginType.Id = client.Create(pluginType);
+
+                        // TODO - Reference Core for Entity Extensions
+                        //createdPluginType.Create(client);
+                    }
+                    else
+                    {
+                        // Update
+                        createdPluginType.Id = pluginResults.Entities.FirstOrDefault().Id;
+                        pluginType.Id = createdPluginType.Id;
+                        client.Update(pluginType);
+
+                        // TODO - Reference Core for Entity Extensions
+                        //createdPluginType.Update(client);
+                    }
 
                     if (plugin.Steps == null)
                     {
@@ -86,39 +151,116 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                         // 4. Register plugin steps
                         Console.WriteLine($"        Step = {step.FriendlyName}");
 
-                        var sdkStep = new SdkMessageProcessingStep(){
+                        // TODO - Get SDK Message ref
+                        var sdkMessageQuery = new QueryExpression(SdkMessage.EntityLogicalName)
+                        {
+                            ColumnSet = new ColumnSet(SdkMessage.PrimaryIdAttribute, SdkMessage.PrimaryNameAttribute),
+                            Criteria = new FilterExpression()
+                            {
+                                Conditions =
+                                {
+                                    new ConditionExpression(SdkMessage.PrimaryNameAttribute, ConditionOperator.Equal,
+                                        step.Message)
+                                }
+                            }
+                        };
+                        var sdkMessage = client.RetrieveMultiple(sdkMessageQuery).Entities
+                            .FirstOrDefault().ToEntityReference();
+
+                        var stepsQuery = new QueryExpression(SdkMessageProcessingStep.EntityLogicalName)
+                        {
+                            ColumnSet = new ColumnSet(SdkMessageProcessingStep.PrimaryIdAttribute, 
+                                SdkMessageProcessingStep.PrimaryNameAttribute),
+                            Criteria = new FilterExpression()
+                            {
+                                Conditions =
+                                {
+                                    new ConditionExpression("eventhandler", ConditionOperator.Equal, createdPluginType.Id),
+                                    new ConditionExpression("sdkmessageid", ConditionOperator.Equal, sdkMessage.Id),
+                                    new ConditionExpression("stage", ConditionOperator.Equal, 
+                                        (int)SdkMessageProcessingStep_Stage.Postoperation),
+                                }
+                            }
+                        };
+                        var stepsResults = client.RetrieveMultiple(stepsQuery);
+
+                        var sdkStep = new SdkMessageProcessingStep()
+                        {
                             Name = step.Name,
                             Configuration = step.UnsecureConfiguration,
-                            Mode = SdkMessageProcessingStep_Mode.Asynchronous,
+                            Mode = SdkMessageProcessingStep_Mode.Asynchronous, // Hard-coded for now... =/
                             Rank = step.ExecutionOrder,
-                            Stage = SdkMessageProcessingStep_Stage.Postoperation,
-                            SupportedDeployment = SdkMessageProcessingStep_SupportedDeployment.ServerOnly,
-                            // QUESTION - why is this deprecated?! What it's been replaced by?!
-                            PluginTypeId = new EntityReference("plugintype", createdPluginType),
-                            // TODO - need something to query SdkMessages and properly map them to the manifest options...
-                            //  Probably means that needs an unvalidated string in the manifest...
-                            SdkMessageId = new EntityReference("sdkmessage", Guid.Parse("20bebb1b-ea3e-db11-86a7-000a3a5473e8")),
+                            Stage = SdkMessageProcessingStep_Stage.Postoperation, // Hard-coded for now... =/
+                            SupportedDeployment = SdkMessageProcessingStep_SupportedDeployment.ServerOnly, // Hard-coded for now... =/
+                            EventHandler = createdPluginType,
+                            SdkMessageId = sdkMessage,
                             Description = step.Description,
                             AsyncAutoDelete = step.AsyncAutoDelete
                             // TODO loop through attributes to create a single string?
                             //FilteringAttributes = step.FilteringAttributes.
-                            
+
                         };
 
-                        var createdStep = client.Create(sdkStep);
+                        EntityReference createdStep = new EntityReference(SdkMessageProcessingStep.EntityLogicalName);
+                        if (stepsResults.Entities.Count == 0)
+                        {
+                            // Create
+                            createdStep.Id = client.Create(sdkStep);
+                        }
+                        else
+                        {
+                            // Update
+                            createdStep.Id = stepsResults.Entities.FirstOrDefault().Id;
+                            sdkStep.Id = createdStep.Id;
+                            client.Update(sdkStep);
+                        }
 
                         foreach (var image in step.EntityImages)
                         {
                             // 5. Register entity images
                             Console.WriteLine($"        Image = {image.Name}");
 
-                            //var stepImage = new SdkMessageProcessingStepImage(){
-                            //    Name = image.Name,
-                            //    Attributes = image.Attributes,
-                            //    ImageType = SdkMessageProcessingStepImage_ImageType.PreImage
-                            //};
+                            var imageQuery = new QueryExpression(SdkMessageProcessingStepImage.EntityLogicalName)
+                            {
+                                ColumnSet = new ColumnSet(SdkMessageProcessingStepImage.PrimaryIdAttribute,
+                                    SdkMessageProcessingStep.PrimaryNameAttribute),
+                                Criteria = new FilterExpression()
+                                {
+                                    Conditions =
+                                    {
+                                        new ConditionExpression(SdkMessageProcessingStepImage.PrimaryNameAttribute,
+                                            ConditionOperator.Equal, image.Name),
+                                        new ConditionExpression("sdkmessageprocessingstepid",
+                                            ConditionOperator.Equal, createdStep.Id)
+                                    }
+                                }
+                            };
+                            var imageResults = client.RetrieveMultiple(imageQuery);
 
-                            //var createdImage = client.Create(stepImage);
+                            var stepImage = new SdkMessageProcessingStepImage()
+                            {
+                                Name = image.Name,
+                                EntityAlias = image.Name,
+                                //Attributes = new AttributeCollection(), // Currently empty... //image.Attributes,
+                                ImageType = SdkMessageProcessingStepImage_ImageType.PreImage,
+                                MessagePropertyName = "Target",
+                                SdkMessageProcessingStepId = createdStep
+                            };
+
+                            EntityReference createdImage = new EntityReference(SdkMessageProcessingStepImage.EntityLogicalName);
+                            if (imageResults.Entities.Count == 0)
+                            {
+                                // Create
+                                createdImage.Id = client.Create(stepImage);
+                            }
+                            else
+                            {
+                                // Update
+                                createdImage.Id = imageResults.Entities.FirstOrDefault().Id;
+                                stepImage.Id = createdImage.Id;
+                                client.Update(stepImage);
+                            }
+
                         }
                     }
                 }
