@@ -33,6 +33,17 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
             foreach (var pluginAssembly in manifest.PluginAssemblies)
             {
+                // Get Solution Name
+                string targetSolutionName = string.Empty;
+                if (!string.IsNullOrEmpty(pluginAssembly.SolutionName))
+                {
+                    targetSolutionName = pluginAssembly.SolutionName;
+
+                } else if (!string.IsNullOrEmpty(manifest.SolutionName))
+                {
+                    targetSolutionName = manifest.SolutionName;
+                }
+
                 // 2. Register DLL
                 Console.WriteLine($"Assembly FriendlyName = {pluginAssembly.FriendlyName};");
 
@@ -58,10 +69,8 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                         }
                     }
                 };
-
                 var assemblyResults = client.RetrieveMultiple(assemblyQuery);
-
-                var createdAssembly = new EntityReference(PluginAssembly.EntityLogicalName);
+                
                 var assemblyEntity = new PluginAssembly()
                 {
                     Name = pluginAssembly.Name,
@@ -73,9 +82,9 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     Content = Convert.ToBase64String(File.ReadAllBytes(pluginAssembly.Assembly))
                 };
 
+                var createdAssembly = new EntityReference(PluginAssembly.EntityLogicalName);
                 if (assemblyResults.Entities.Count == 0)
                 {
-                    // Create
                     createdAssembly.Id = client.Create(assemblyEntity);
 
                     // TODO - Reference Core for Entity Extensions
@@ -83,13 +92,18 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 }
                 else
                 {
-                    // Update
                     createdAssembly.Id = assemblyResults.Entities.FirstOrDefault().Id;
                     assemblyEntity.Id = createdAssembly.Id;
                     client.Update(assemblyEntity);
 
                     // TODO - Reference Core for Entity Extensions
                     //assemblyEntity.Update();
+                }
+
+                if (!string.IsNullOrEmpty(targetSolutionName))
+                {
+                    SolutionWrapper.AddSolutionComponent(client, targetSolutionName, 
+                        createdAssembly.Id, ComponentType.PluginAssembly);
                 }
 
                 foreach (var plugin in pluginAssembly.Plugins)
@@ -112,7 +126,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     };
                     var pluginResults = client.RetrieveMultiple(pluginQuery);
 
-                    PluginType pluginType = new PluginType()
+                    var pluginType = new PluginType()
                     {
                         PluginAssemblyId = createdAssembly,
                         TypeName = plugin.Name,
@@ -151,7 +165,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                         // 4. Register plugin steps
                         Console.WriteLine($"        Step = {step.FriendlyName}");
 
-                        // TODO - Get SDK Message ref
                         var sdkMessageQuery = new QueryExpression(SdkMessage.EntityLogicalName)
                         {
                             ColumnSet = new ColumnSet(SdkMessage.PrimaryIdAttribute, SdkMessage.PrimaryNameAttribute),
@@ -215,6 +228,12 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                             client.Update(sdkStep);
                         }
 
+                        if (!string.IsNullOrEmpty(targetSolutionName))
+                        {
+                            SolutionWrapper.AddSolutionComponent(client, targetSolutionName,
+                                createdStep.Id, ComponentType.SDKMessageProcessingStep);
+                        }
+
                         foreach (var image in step.EntityImages)
                         {
                             // 5. Register entity images
@@ -241,7 +260,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                             {
                                 Name = image.Name,
                                 EntityAlias = image.Name,
-                                //Attributes = new AttributeCollection(), // Currently empty... //image.Attributes,
+                                Attributes1 = string.Join(",", image.Attributes),
                                 ImageType = SdkMessageProcessingStepImage_ImageType.PreImage,
                                 MessagePropertyName = "Target",
                                 SdkMessageProcessingStepId = createdStep
@@ -260,7 +279,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                                 stepImage.Id = createdImage.Id;
                                 client.Update(stepImage);
                             }
-
+                            
                         }
                     }
                 }

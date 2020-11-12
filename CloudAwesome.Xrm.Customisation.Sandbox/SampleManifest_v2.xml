@@ -3,10 +3,10 @@
   <PluginAssemblies>
     <PluginAssembly>
       <Name>SamplePluginAssembly</Name>
-      <FriendlyName>Contact Plugins</FriendlyName>
+      <FriendlyName>Account and Contact Plugins</FriendlyName>
       <Assembly>../../../SamplePluginAssembly/bin/debug/SamplePluginAssembly.dll</Assembly>
       <IsolationMode>Sandbox</IsolationMode>
-      <SolutionName>...</SolutionName>
+      <SolutionName></SolutionName>
       <Plugins>
         <Plugin>
           <Name>SamplePluginAssembly.UpdateContact</Name>
@@ -14,8 +14,8 @@
           <Description>...</Description>
           <Steps>
             <Step>
-              <Name>Create Contact: On Create of Contact</Name>
-              <FriendlyName>Create Contact: On Create of Contact</FriendlyName>
+              <Name>Update Contact: On Update of Contact</Name>
+              <FriendlyName>Update Contact: On Update of Contact</FriendlyName>
               <Description>...</Description>
               <stage>PostOperation</stage>
               <ExecutionMode>Synchronous</ExecutionMode>
@@ -60,9 +60,8 @@
               <ExecutionOrder>1</ExecutionOrder>
               <AsyncAutoDelete>true</AsyncAutoDelete>
               <FilteringAttributes>
-                <Attribute>firstname</Attribute>
-                <Attribute>middlename</Attribute>
-                <Attribute>lastname</Attribute>
+                <Attribute>telephone1</Attribute>
+                <Attribute>accountnumber</Attribute>
               </FilteringAttributes>
               <UnsecureConfiguration>...</UnsecureConfiguration>
               <SecureConfiguration>...</SecureConfiguration>
@@ -84,7 +83,7 @@
     </PluginAssembly>
   </PluginAssemblies>
 
-  <SolutionName>...</SolutionName>
+  <SolutionName>PluginRegistrationSandbox</SolutionName>
   <!-- CDS connection details -->
   <!-- Can provide any of the below, or none if provided outside of config file (e.g. manual in CLI or from Key Vault -->
   <ConnectionType>AppRegistration</ConnectionType>
