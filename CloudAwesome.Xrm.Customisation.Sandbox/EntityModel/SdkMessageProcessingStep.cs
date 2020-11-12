@@ -912,6 +912,27 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox.EntityModel
 		}
 		
 		/// <summary>
+		/// N:1 serviceendpoint_sdkmessageprocessingstep
+		/// </summary>
+		[Microsoft.Xrm.Sdk.AttributeLogicalNameAttribute("eventhandler")]
+		[Microsoft.Xrm.Sdk.RelationshipSchemaNameAttribute("serviceendpoint_sdkmessageprocessingstep")]
+		public CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint serviceendpoint_sdkmessageprocessingstep
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.GetRelatedEntity<CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint>("serviceendpoint_sdkmessageprocessingstep", null);
+			}
+			[System.Diagnostics.DebuggerNonUserCode()]
+			set
+			{
+				this.OnPropertyChanging("serviceendpoint_sdkmessageprocessingstep");
+				this.SetRelatedEntity<CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint>("serviceendpoint_sdkmessageprocessingstep", null, value);
+				this.OnPropertyChanged("serviceendpoint_sdkmessageprocessingstep");
+			}
+		}
+		
+		/// <summary>
 		/// Constructor for populating via LINQ queries given a LINQ anonymous type
 		/// <param name="anonymousType">LINQ anonymous type.</param>
 		/// </summary>

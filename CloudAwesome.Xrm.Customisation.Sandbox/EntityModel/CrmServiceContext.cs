@@ -172,6 +172,18 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox.EntityModel
 				return this.CreateQuery<CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.SdkMessageResponseField>();
 			}
 		}
+		
+		/// <summary>
+		/// Gets a binding to the set of all <see cref="CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint"/> entities.
+		/// </summary>
+		public System.Linq.IQueryable<CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint> ServiceEndpointSet
+		{
+			[System.Diagnostics.DebuggerNonUserCode()]
+			get
+			{
+				return this.CreateQuery<CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint>();
+			}
+		}
 	}
 	
 	internal sealed class EntityOptionSetEnum

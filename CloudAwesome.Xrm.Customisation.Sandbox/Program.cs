@@ -9,6 +9,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Tooling.Connector;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
+using ServiceEndpoint = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox
 {
@@ -22,15 +23,55 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 "Password='RRbkX{d}0npe<]y&bB1;su@fSJz}v&fHx>85';" +
                 "Url=https://awesome-sandbox.crm11.dynamics.com");
 
-            Run("../../SampleManifest_v2.xml", client);
+            // 1. Get and Display the XML manifest
+            var manifest = GetPluginManifest("../../SampleManifest_v2.xml");
+
+            RegisterPlugins(manifest, client);
+
+            RegisterServiceEndPoints(manifest, client);
+
             Console.ReadKey();
         }
 
-        public static void Run(string manifestSourceFile, CrmServiceClient client)
+        public static void RegisterServiceEndPoints(PluginManifest manifest, CrmServiceClient client)
         {
-            // 1. Get and Display the XML manifest
-            var manifest = GetPluginManifest(manifestSourceFile);
+            // TODO - > Extend manifest for hardcoded details
+            // TODO - > Consume extended manifest
+            // TODO - Query for existence of Endpoint - very easy to crete duplicates here!!
+            // TODO - >> Only currently supports Queue - build the entity for different contracts
+            // TODO - > Test manifest nodes for each contract * 6 (Queue, Topic, OneWay, TwoWay, Rest, EventHub)
+            // TODO - Register steps against the endpoint
+            // TODO - Register and test executing plugins on registered endpoints
 
+            var s = new ServiceEndpoint()
+            {
+                Name = "TesterQueue",
+                NamespaceAddress = "sb://xrmcustomisationsandbox.servicebus.windows.net",
+                Contract = ServiceEndpoint_Contract.Queue,
+                Path = "tester",
+                MessageFormat = ServiceEndpoint_MessageFormat.Json,
+                AuthType = ServiceEndpoint_AuthType.SASKey,
+                SASKeyName = "RootManageSharedAccessKey",
+                SASKey = "+1hmU2vUsIo3ZyAxEstbcapIaHpHJIAIbQKx0PznPKM=",
+                UserClaim = ServiceEndpoint_UserClaim.UserId,
+                Description = "This is a description"
+            };
+
+            var createdServiceEndPoint = client.Create(s);
+
+            if (!string.IsNullOrEmpty(manifest.SolutionName))
+            {
+                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                    createdServiceEndPoint, ComponentType.ServiceEndpoint);
+            }
+
+            Console.WriteLine($"Service Endpoint '{s.Name}' registered");
+
+        }
+
+        public static void RegisterPlugins(PluginManifest manifest, CrmServiceClient client)
+        {
+            
             foreach (var pluginAssembly in manifest.PluginAssemblies)
             {
                 // Get Solution Name
@@ -289,7 +330,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
             // 6. Register Service Endpoints
 
-
+            
 
             // 7. Register WebHooks
 
