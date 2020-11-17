@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ProcessManifest>
+
+  <PluginAssemblies>
+    <PluginAssembly AllChildSteps="true"/>
+    <PluginAssembly AllChildSteps="false">
+      <PluginStep>UniqueNameOfPluginStep</PluginStep>
+    </PluginAssembly>
+  </PluginAssemblies>
+
+  <Workflows>
+    <Workflow>UniqueNameOfWorkflow</Workflow>
+    <Workflow>UniqueNameOfWorkflow2</Workflow>
+  </Workflows>
+
+  <RecordCreationRules>
+    <RecordCreationRule>UniqueNameOfCreationRule</RecordCreationRule>
+  </RecordCreationRules>
+
+  <ModernFlows>
+    <ModernFlow>UniqueNameOfModernFlow</ModernFlow>
+    <ModernFlow>UniqueNameOfModernFlow2</ModernFlow>
+  </ModernFlows>
+
+  <BusinessRules>
+    <Entity Name="Contact" AllChildRules="true"></Entity>
+    <Entity Name="Account" AllChildRules="false">
+      <BusinessRule>UniqueNameOfBusinessRule</BusinessRule>
+    </Entity>
+  </BusinessRules>
+
+</ProcessManifest>
