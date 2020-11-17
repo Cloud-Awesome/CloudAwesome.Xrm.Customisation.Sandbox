@@ -96,7 +96,59 @@
   <!-- CDS connection details -->
 
   <!-- post-MVP -->
-  <ServiceEndpoints>...</ServiceEndpoints>
+  <ServiceEndpoints>
+    <ServiceEndpoint>
+      <Name>TesterQueue</Name>
+      <NamespaceAddress>sb://xrmcustomisationsandbox.servicebus.windows.net</NamespaceAddress>
+      <Contract>Queue</Contract>
+      <Path>Tester</Path>
+      <MessageFormat>Json</MessageFormat>
+      <AuthType>SASKey</AuthType>
+      <SASKeyName>RootManageSharedAccessKey</SASKeyName>
+      <SASKey>+1hmU2vUsIo3ZyAxEstbcapIaHpHJIAIbQKx0PznPKM=</SASKey>
+      <UserClaim>UserId</UserClaim>
+      <Description>This is the TesterQueue's description</Description>
+      <Plugins>
+        <Plugin>
+          <Name>SamplePluginAssembly.UpdateContact</Name>
+          <FriendlyName>Update Contact</FriendlyName>
+          <Description>...</Description>
+          <Steps>
+            <Step>
+              <Name>Update Contact: On Update of Contact</Name>
+              <FriendlyName>Update Contact: On Update of Contact</FriendlyName>
+              <Description>...</Description>
+              <stage>PostOperation</stage>
+              <ExecutionMode>Synchronous</ExecutionMode>
+              <Message>update</Message>
+              <PrimaryEntity>contact</PrimaryEntity>
+              <ExecutionOrder>1</ExecutionOrder>
+              <AsyncAutoDelete>false</AsyncAutoDelete>
+              <FilteringAttributes>
+                <Attribute>firstname</Attribute>
+                <Attribute>middlename</Attribute>
+                <Attribute>lastname</Attribute>
+              </FilteringAttributes>
+              <UnsecureConfiguration>...</UnsecureConfiguration>
+              <SecureConfiguration>...</SecureConfiguration>
+              <EntityImages>
+                <EntityImage>
+                  <Name>ContactImage</Name>
+                  <Type>PreImage</Type>
+                  <Attributes>
+                    <Attribute>firstname</Attribute>
+                    <Attribute>middlename</Attribute>
+                    <Attribute>lastname</Attribute>
+                  </Attributes>
+                </EntityImage>
+              </EntityImages>
+            </Step>
+          </Steps>
+        </Plugin>
+      </Plugins>
+    </ServiceEndpoint>
+  </ServiceEndpoints>
+
   <Webhooks>...</Webhooks>
   <!-- post-MVP -->
 

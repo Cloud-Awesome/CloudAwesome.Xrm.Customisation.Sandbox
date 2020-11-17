@@ -20,13 +20,13 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             var client = new CrmServiceClient(
                 "AuthType=Office365;" +
                 "Username=arthur@cloudawesome.uk;" +
-                "Password='RRbkX{d}0npe<]y&bB1;su@fSJz}v&fHx>85';" +
+                "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
                 "Url=https://awesome-sandbox.crm11.dynamics.com");
 
             // 1. Get and Display the XML manifest
             var manifest = GetPluginManifest("../../SampleManifest_v2.xml");
 
-            RegisterPlugins(manifest, client);
+            //RegisterPlugins(manifest, client);
 
             RegisterServiceEndPoints(manifest, client);
 
@@ -35,37 +35,73 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
         public static void RegisterServiceEndPoints(PluginManifest manifest, CrmServiceClient client)
         {
-            // TODO - > Extend manifest for hardcoded details
-            // TODO - > Consume extended manifest
-            // TODO - Query for existence of Endpoint - very easy to crete duplicates here!!
             // TODO - >> Only currently supports Queue - build the entity for different contracts
             // TODO - > Test manifest nodes for each contract * 6 (Queue, Topic, OneWay, TwoWay, Rest, EventHub)
             // TODO - Register steps against the endpoint
             // TODO - Register and test executing plugins on registered endpoints
 
-            var s = new ServiceEndpoint()
+            foreach (var endpoint in manifest.ServiceEndpoints)
             {
-                Name = "TesterQueue",
-                NamespaceAddress = "sb://xrmcustomisationsandbox.servicebus.windows.net",
-                Contract = ServiceEndpoint_Contract.Queue,
-                Path = "tester",
-                MessageFormat = ServiceEndpoint_MessageFormat.Json,
-                AuthType = ServiceEndpoint_AuthType.SASKey,
-                SASKeyName = "RootManageSharedAccessKey",
-                SASKey = "+1hmU2vUsIo3ZyAxEstbcapIaHpHJIAIbQKx0PznPKM=",
-                UserClaim = ServiceEndpoint_UserClaim.UserId,
-                Description = "This is a description"
-            };
+                var query = new QueryExpression()
+                {
+                    EntityName = ServiceEndpoint.EntityLogicalName,
+                    ColumnSet = new ColumnSet(true),
+                    Criteria = new FilterExpression()
+                    {
+                        Conditions =
+                        {
+                            new ConditionExpression(ServiceEndpoint.PrimaryNameAttribute, ConditionOperator.Equal,
+                                endpoint.Name)
+                        }
+                    }
+                };
+                var results = client.RetrieveMultiple(query);
 
-            var createdServiceEndPoint = client.Create(s);
+                if (results.Entities.Count > 1)
+                {
+                    Console.WriteLine($"Service Endpoint '{endpoint.Name}' has multiple duplicates, based on the 'Name' attribute. This endpoint is being ignored until registered endpoints are de-duplicated by name");
+                    continue;
+                }
 
-            if (!string.IsNullOrEmpty(manifest.SolutionName))
-            {
-                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
-                    createdServiceEndPoint, ComponentType.ServiceEndpoint);
+                Enum.TryParse<ServiceEndpoint_Contract>(endpoint.Contract.ToString(), out var contractType);
+                Enum.TryParse<ServiceEndpoint_MessageFormat>(endpoint.MessageFormat.ToString(), out var messageFormat);
+                Enum.TryParse<ServiceEndpoint_AuthType>(endpoint.AuthType.ToString(), out var authType);
+                Enum.TryParse<ServiceEndpoint_UserClaim>(endpoint.UserClaim.ToString(), out var userClaim);
+
+                var s = new ServiceEndpoint()
+                {
+                    Name = endpoint.Name,
+                    NamespaceAddress = endpoint.NamespaceAddress,
+                    Contract = contractType,
+                    Path = endpoint.Path,
+                    MessageFormat = messageFormat,
+                    AuthType = authType,
+                    SASKeyName = endpoint.SASKeyName,
+                    SASKey = endpoint.SASKey,
+                    UserClaim = userClaim,
+                    Description = endpoint.Description
+                };
+
+                Guid createdServiceEndPoint;
+                if (results.Entities.Count == 1)
+                {
+                    createdServiceEndPoint = results.Entities.FirstOrDefault().Id;
+                    s.Id = createdServiceEndPoint;
+                    client.Update(s);
+                }
+                else
+                {
+                    createdServiceEndPoint = client.Create(s);
+                }
+                
+                if (!string.IsNullOrEmpty(manifest.SolutionName))
+                {
+                    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                        createdServiceEndPoint, ComponentType.ServiceEndpoint);
+                }
+
+                Console.WriteLine($"Service Endpoint '{s.Name}' registered");
             }
-
-            Console.WriteLine($"Service Endpoint '{s.Name}' registered");
 
         }
 
@@ -354,10 +390,10 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
         public static T DeserialiseFromFile<T>(string path)
         {
-            XmlSerializer xmlSer = new XmlSerializer(typeof(T));
+            var xmlSerializer = new XmlSerializer(typeof(T));
             using (FileStream fs = File.OpenRead(path))
             {
-                return (T)xmlSer.Deserialize(fs);
+                return (T)xmlSerializer.Deserialize(fs);
             }
         }
     }
