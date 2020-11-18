@@ -23,11 +23,9 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
                 "Url=https://awesome-sandbox.crm11.dynamics.com");
 
-            // 1. Get and Display the XML manifest
             var manifest = GetPluginManifest("../../SampleManifest_v2.xml");
 
-            //RegisterPlugins(manifest, client);
-
+            RegisterPlugins(manifest, client);
             RegisterServiceEndPoints(manifest, client);
 
             Console.ReadKey();
@@ -364,24 +362,23 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
             Console.WriteLine("All done... So far...");
 
-            // 6. Register Service Endpoints
-
-            
-
-            // 7. Register WebHooks
-
-
-
-            // (Post-v1)
-            // (8. Register CWAs)
-
-
-            // (Maybe do this during each section above?)
-            // 9. Add everything to specified solution
-            // 10. Remove anything unwanted? 
-            //      (Or clobber before registering?)
-
         }
+
+        // Register WebHooks
+        //  Maybe combine into ServiceEndpoint method? It's the same entity, just another contract.
+        //  Not sure about the Key-Value parameters though...
+        // https://docs.microsoft.com/en-us/dynamics365/customerengagement/on-premises/developer/use-webhooks
+
+
+        // (Maybe do this during each section above?)
+        // Add everything to specified solution
+        // Remove anything unwanted? 
+        //  (Or clobber before registering?)
+
+
+        // (Post-v1)
+        // (Register CWAs)
+
 
         public static PluginManifest GetPluginManifest(string filePath)
         {
