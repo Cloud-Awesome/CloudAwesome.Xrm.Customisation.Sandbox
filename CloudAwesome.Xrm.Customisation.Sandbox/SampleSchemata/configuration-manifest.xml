@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ConfigurationManifest>
+  <SolutionName>ConfigurationTester</SolutionName>
+  <PubilsherUniqueName>CloudAwesome</PubilsherUniqueName>
+  <Clobber>true</Clobber>
+
+  <!-- CDS connection details -->
+  <!-- Can provide any of the below, or none if provided outside of config file 
+       (e.g. manual in CLI or from Key Vault) -->
+  <ConnectionType>AppRegistration</ConnectionType>
+  <CdsConnectionString>...</CdsConnectionString>
+  <CdsUrl>...</CdsUrl>
+  <CdsUserName>...</CdsUserName>
+  <CdsPassword>...</CdsPassword>
+  <CdsAppId>...</CdsAppId>
+  <CdsAppSecret>...</CdsAppSecret>
+  <!-- CDS connection details -->
+
+  <Entities>
+    <Entity>
+      <DisplayName>Laptop</DisplayName>
+      <PluralName>Laptops</PluralName>
+      <SchemaName>awe_laptop</SchemaName>
+      <Description>...</Description>
+      <OwnershipType>User</OwnershipType>
+      <PrimaryAttributeName>Name</PrimaryAttributeName>
+      <PrimaryAttributeMaxLength>50</PrimaryAttributeMaxLength>
+      <PrimaryAttributeDescription>...</PrimaryAttributeDescription>
+      <IsActivity>false</IsActivity>
+      <HasActivities>false</HasActivities>
+      <HasNotes>true</HasNotes>
+      <IsQuickCreateEnabled>false</IsQuickCreateEnabled>
+      <IsAuditEnabled>true</IsAuditEnabled>
+      <IsDuplicateDetectionEnabled>false</IsDuplicateDetectionEnabled>
+      <IsBusinessProcessEnabled>false</IsBusinessProcessEnabled>
+      <IsDocumentManagementEnabled>false</IsDocumentManagementEnabled>
+      <NavigationColour></NavigationColour>
+      <Attributes>
+        <Attribute>
+          <DisplayName>Release Date</DisplayName>
+          <DataType>DateTime</DataType>
+          <Description>...</Description>
+          <AddToForm>true</AddToForm>
+          <AddToViewOrder>1</AddToViewOrder>
+        </Attribute>
+        <Attribute>
+          <DisplayName>Model</DisplayName>
+          <SchemaName>awe_model</SchemaName>
+          <DataType>GlobalOptionSet</DataType>
+          <GlobalOptionSet>awe_model</GlobalOptionSet>
+          <Description>...</Description>
+          <RequiredLevel>BusinessRequired</RequiredLevel>
+          <SourceType></SourceType>
+          <MaxLength></MaxLength>
+          <StringFormat></StringFormat>
+          <AutoNumberFormat></AutoNumberFormat>
+          <DateTimeFormat></DateTimeFormat>
+          <MinValue></MinValue>
+          <MaxValue></MaxValue>
+          <ReferencedEntity></ReferencedEntity>
+          <RelationshipNameSuffix></RelationshipNameSuffix>
+          <ParentCascade></ParentCascade>
+          <AddToForm>true</AddToForm>
+          <AddToViewOrder>1</AddToViewOrder>
+        </Attribute>
+      </Attributes>
+      <SecurityRoles>
+        <SecurityRole>
+          <Name>Laptop Administrator</Name>
+          <Create>Organization</Create>
+          <Read>ParentChild</Read>
+          <Write>ParentChild</Write>
+          <Delete>None</Delete>
+          <AppendTo>Organization</AppendTo>
+          <Append>Organization</Append>
+          <Share>User</Share>
+        </SecurityRole>
+        <SecurityRole>
+          <Name>Laptop User</Name>
+          <Create>ParentChild</Create>
+          <Read>ParentChild</Read>
+          <Write>User</Write>
+          <Delete>None</Delete>
+          <AppendTo>ParentChild</AppendTo>
+          <Append>ParentChild</Append>
+          <Share>None</Share>
+        </SecurityRole>
+      </SecurityRoles>
+    </Entity>
+  </Entities>
+
+  <Optionsets>
+    <OptionsSet>
+      <DisplayName>Laptop Model</DisplayName>
+      <SchemaName>awe_model</SchemaName>
+      <Items>
+        <Item>XPS 13</Item>
+        <Item>XPS 15</Item>
+        <Item>Surface Pro</Item>
+        <Item>Surface Go</Item>
+        <Item>Macbook Pro</Item>
+      </Items>
+    </OptionsSet>
+  </Optionsets>
+
+  <SecurityRoles>
+    <SecurityRole>
+      <Name>Laptop Administrator</Name>
+      <Privileges>
+        <Privilege>
+          <Name>priv_bulkdelete</Name>
+          <Value>true</Value>
+        </Privilege>
+        <Privilege>
+          <Name>priv_activatebusinessrules</Name>
+          <Value>true</Value>
+        </Privilege>
+      </Privileges>
+    </SecurityRole>
+    <SecurityRole>
+      <Name>Laptop User</Name>
+    </SecurityRole>
+  </SecurityRoles>
+
+  <ModelDrivenApps>
+    <ModelDrivenApp>
+      <Name>Laptop Management</Name>
+      <UniqueName>awe_laptopmanagement</UniqueName>
+      <Description>...</Description>
+      <SiteMap>
+        <Areas>
+          <Area>
+            <Name>New Area</Name>
+            <Groups>
+              <Group>
+                <Name>New Group</Name>
+                <SubAreas>
+                  <SubArea>
+                    <Type>Entity</Type>
+                    <Entity>awe_laptop</Entity>
+                    <Title>Laptops</Title>
+                  </SubArea>
+                </SubAreas>
+              </Group>
+            </Groups>
+          </Area>
+        </Areas>
+      </SiteMap>
+    </ModelDrivenApp>
+  </ModelDrivenApps>
+
+</ConfigurationManifest>

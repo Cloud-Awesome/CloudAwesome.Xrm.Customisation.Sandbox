@@ -119,16 +119,17 @@
   <ItemGroup>
     <None Include="App.config" />
     <None Include="packages.config" />
-    <None Include="SampleManifest_v2.xsd">
+    <None Include="SampleSchemata\SampleManifest_v2.xsd">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="SampleSchemata\configuration-manifest.xml" />
     <Content Include="ProcessesManifest.xml" />
-    <Content Include="SampleManifest.xml">
+    <Content Include="SampleSchemata\SampleManifest.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="SampleManifest_v2.xml" />
+    <Content Include="SampleSchemata\SampleManifest_v2.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProcessModels\" />
