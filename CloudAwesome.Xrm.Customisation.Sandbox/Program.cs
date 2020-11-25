@@ -5,8 +5,11 @@ using System.Reflection;
 using System.Xml.Serialization;
 using CloudAwesome.Xrm.Customisation.Sandbox.EntityModel;
 using CloudAwesome.Xrm.Customisation.Sandbox.PluginModels;
+using CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
+using Microsoft.Xrm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Tooling.Connector;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
 using ServiceEndpoint = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint;
@@ -23,12 +26,89 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
                 "Url=https://awesome-sandbox.crm11.dynamics.com");
 
-            var manifest = GetPluginManifest("../../SampleManifest_v2.xml");
+            //var manifest = GetPluginManifest("../../SameplSchemata/SampleManifest_v2.xml");
+            var configurationManifest = GetConfigurationManifest("../../SampleSchemata/configuration-manifest.xml");
 
-            RegisterPlugins(manifest, client);
-            RegisterServiceEndPoints(manifest, client);
+            //RegisterPlugins(manifest, client);
+            //RegisterServiceEndPoints(manifest, client);
+
+            CreateCrmCustomisations(configurationManifest, client);
 
             Console.ReadKey();
+        }
+
+        public static void CreateCrmCustomisations(ConfigurationManifest manifest, CrmServiceClient client)
+        {
+            //-----------------------------------------
+            // i. Clobber customisations
+            if (manifest.Clobber)
+            {
+                Console.WriteLine("Clobber is set to TRUE");
+
+                // 1. Apps
+                // 2. Entities
+                // 3. Security Roles
+
+                // 4. Optionsets
+                Console.WriteLine("Deleting Global Optionsets");
+                foreach (var optionset in manifest.OptionSets)
+                {
+                    DeleteOptionSetRequest deleteOptionSetRequest = new DeleteOptionSetRequest()
+                    {
+                        Name = optionset.SchemaName
+                    };
+                    client.Execute(deleteOptionSetRequest);
+                    Console.WriteLine($"    Global Optionset {optionset.DisplayName} has been deleted");
+                }
+            }
+
+
+            //-----------------------------------------
+            // ii. Create customisations
+
+            // 1. Create Optionsets
+
+            Console.WriteLine("Creating Global Optionsets");
+
+            // TODO - check in case no optionsets are in manifest
+            foreach (var optionset in manifest.OptionSets)
+            {
+                var tester = new OptionSetMetadata
+                {
+                    Name = optionset.SchemaName,
+                    DisplayName = new Label(optionset.DisplayName, 1033),
+                    IsGlobal = true,
+                    OptionSetType = OptionSetType.Picklist,
+                };
+                foreach (var option in optionset.Items)
+                {
+                    tester.Options.Add(new OptionMetadata(new Label(option, 1033), null));
+                }
+
+                CreateOptionSetRequest optionSetRequest = new CreateOptionSetRequest()
+                {
+                    OptionSet = tester
+                };
+
+                CreateOptionSetResponse response = (CreateOptionSetResponse)client.Execute(optionSetRequest);
+
+                if (!string.IsNullOrEmpty(manifest.SolutionName))
+                {
+                    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                        response.OptionSetId, ComponentType.OptionSet);
+                }
+                Console.WriteLine($"    Optionset {optionset.DisplayName} created successfully");
+            }
+
+
+            // 2. Create Security Roles
+
+            // 3. Create Entities
+
+            // 4. Create Model Driven Apps
+
+
+            Console.WriteLine("All customisations processed!");
         }
 
         public static void RegisterServiceEndPoints(PluginManifest manifest, CrmServiceClient client)
@@ -383,6 +463,11 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         public static PluginManifest GetPluginManifest(string filePath)
         {
             return DeserialiseFromFile<PluginManifest>(filePath);
+        }
+
+        public static ConfigurationManifest GetConfigurationManifest(string filePath)
+        {
+            return DeserialiseFromFile<ConfigurationManifest>(filePath);
         }
 
         public static T DeserialiseFromFile<T>(string path)

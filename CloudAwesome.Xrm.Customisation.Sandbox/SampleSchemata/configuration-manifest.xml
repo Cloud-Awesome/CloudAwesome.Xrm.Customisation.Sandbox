@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ConfigurationManifest>
-  <SolutionName>ConfigurationTester</SolutionName>
-  <PubilsherUniqueName>CloudAwesome</PubilsherUniqueName>
+  <SolutionName>EntityCreationSandbox</SolutionName>
+  <PubilsherUniqueName>cloudawesome</PubilsherUniqueName>
   <Clobber>true</Clobber>
 
   <!-- CDS connection details -->
@@ -64,8 +64,8 @@
           <AddToViewOrder>1</AddToViewOrder>
         </Attribute>
       </Attributes>
-      <SecurityRoles>
-        <SecurityRole>
+      <EntityPermissions>
+        <Permissions>
           <Name>Laptop Administrator</Name>
           <Create>Organization</Create>
           <Read>ParentChild</Read>
@@ -74,8 +74,8 @@
           <AppendTo>Organization</AppendTo>
           <Append>Organization</Append>
           <Share>User</Share>
-        </SecurityRole>
-        <SecurityRole>
+        </Permissions>
+        <Permissions>
           <Name>Laptop User</Name>
           <Create>ParentChild</Create>
           <Read>ParentChild</Read>
@@ -84,13 +84,13 @@
           <AppendTo>ParentChild</AppendTo>
           <Append>ParentChild</Append>
           <Share>None</Share>
-        </SecurityRole>
-      </SecurityRoles>
+        </Permissions>
+      </EntityPermissions>
     </Entity>
   </Entities>
 
-  <Optionsets>
-    <OptionsSet>
+  <OptionSets>
+    <OptionSet>
       <DisplayName>Laptop Model</DisplayName>
       <SchemaName>awe_model</SchemaName>
       <Items>
@@ -100,8 +100,17 @@
         <Item>Surface Go</Item>
         <Item>Macbook Pro</Item>
       </Items>
-    </OptionsSet>
-  </Optionsets>
+    </OptionSet>
+    <OptionSet>
+      <DisplayName>Colour</DisplayName>
+      <SchemaName>awe_colour</SchemaName>
+      <Items>
+        <Item>Blue</Item>
+        <Item>Green</Item>
+        <Item>Black</Item>
+      </Items>
+    </OptionSet>
+  </OptionSets>
 
   <SecurityRoles>
     <SecurityRole>

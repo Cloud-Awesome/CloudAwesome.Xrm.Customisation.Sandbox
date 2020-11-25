@@ -88,6 +88,18 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ConfigurationModels\Area.cs" />
+    <Compile Include="ConfigurationModels\Attribute.cs" />
+    <Compile Include="ConfigurationModels\ConfigurationManifest.cs" />
+    <Compile Include="ConfigurationModels\Entity.cs" />
+    <Compile Include="ConfigurationModels\EntityPermission.cs" />
+    <Compile Include="ConfigurationModels\Group.cs" />
+    <Compile Include="ConfigurationModels\ModelDrivenApp.cs" />
+    <Compile Include="ConfigurationModels\OptionSet.cs" />
+    <Compile Include="ConfigurationModels\Privilege.cs" />
+    <Compile Include="ConfigurationModels\SecurityRole.cs" />
+    <Compile Include="ConfigurationModels\SiteMap.cs" />
+    <Compile Include="ConfigurationModels\SubArea.cs" />
     <Compile Include="EntityModel\CrmServiceContext.cs" />
     <Compile Include="EntityModel\OptionSets.cs" />
     <Compile Include="EntityModel\PluginAssembly.cs" />
