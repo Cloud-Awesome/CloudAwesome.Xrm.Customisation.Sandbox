@@ -30,10 +30,12 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             //var manifest = GetPluginManifest("../../SameplSchemata/SampleManifest_v2.xml");
             var configurationManifest = GetConfigurationManifest("../../SampleSchemata/configuration-manifest.xml");
 
-            //RegisterPlugins(manifest, client);
-            //RegisterServiceEndPoints(manifest, client);
-
+            // RegisterPlugins(manifest, client);
+            // RegisterServiceEndPoints(manifest, client);
             CreateCrmCustomisations(configurationManifest, client);
+            // MigrateBulkDeletionJobs
+            // ConfigureSecurityFromManifest
+            // ToggleProcessesFromManifest
 
             Console.ReadKey();
         }
