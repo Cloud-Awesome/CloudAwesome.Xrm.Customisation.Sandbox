@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Xml.Serialization;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels
 {
@@ -10,7 +6,8 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels
     {
         public string Name { get; set; }
 
-        public Privilege[] Privileges { get; set; }
+        [XmlArrayItem("Privilege")]
+        public string[] Privileges { get; set; }
 
     }
 }

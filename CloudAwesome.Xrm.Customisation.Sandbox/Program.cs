@@ -10,6 +10,7 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Metadata;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.Xrm.Tooling.Connector;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
 using ServiceEndpoint = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint;
@@ -47,7 +48,30 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 // 1. Apps
                 // 2. Entities
+
                 // 3. Security Roles
+                Console.WriteLine("Deleting Security Roles");
+                foreach (var securityRole in manifest.SecurityRoles)
+                {
+                    var query = new QueryExpression("role")
+                    {
+                        Criteria = new FilterExpression
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression("name", ConditionOperator.Equal, securityRole.Name)
+                            }
+                        }
+                    };
+
+                    var role = client.RetrieveMultiple(query);
+                    if (role.Entities.Count > 0)
+                    {
+                        client.Delete("role", role.Entities.FirstOrDefault().Id);
+                        Console.WriteLine($"    Security Role {securityRole.Name} has been deleted");
+                    }
+
+                }
 
                 // 4. Optionsets
                 Console.WriteLine("Deleting Global Optionsets");
@@ -100,8 +124,54 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 Console.WriteLine($"    Optionset {optionset.DisplayName} created successfully");
             }
 
-
             // 2. Create Security Roles
+            // TODO - Doesn't work yet... ;)
+            //foreach (var securityRole in manifest.SecurityRoles)
+            //{
+            //    var role = new Microsoft.Xrm.Sdk.Entity("role");
+            //    role["name"] = securityRole.Name;
+            //    role["businessunitid"] =
+            //        new EntityReference("businessunit", Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
+
+                //var createdRole = client.Create(role);
+
+                //if (!string.IsNullOrEmpty(manifest.SolutionName))
+                //{
+                //    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                //        createdRole, ComponentType.Role);
+                //}
+
+            //    RolePrivilege[] privs = new RolePrivilege[securityRole.Privileges.Count()];
+            //    foreach (var privilege in securityRole.Privileges)
+            //    {
+            //        var retrievePrivsByName = new QueryExpression("privilege")
+            //        {
+            //            ColumnSet = new ColumnSet("name"),
+            //            Criteria = new FilterExpression
+            //            {
+            //                Conditions =
+            //                {
+            //                    new ConditionExpression("name", ConditionOperator.Equal, privilege)
+            //                }
+            //            }
+            //        };
+
+            //        var privId = client.RetrieveMultiple(retrievePrivsByName).Entities.FirstOrDefault().Id;
+            //        AddPrivilegesRoleRequest addPrivilege = new AddPrivilegesRoleRequest()
+            //        {
+            //            RoleId = createdRole,
+            //            Privileges = new[]
+            //            {
+            //                new RolePrivilege
+            //                {
+            //                    PrivilegeId = privId,
+            //                    Depth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth.Global
+            //                }
+            //            }
+            //        };
+            //        client.Execute(addPrivilege);
+            //    }
+            //}
 
             // 3. Create Entities
 

@@ -116,18 +116,9 @@
     <SecurityRole>
       <Name>Laptop Administrator</Name>
       <Privileges>
-        <Privilege>
-          <Name>priv_bulkdelete</Name>
-          <Value>true</Value>
-        </Privilege>
-        <Privilege>
-          <Name>priv_activatebusinessrules</Name>
-          <Value>true</Value>
-        </Privilege>
+        <Privilege>prvbulkdelete</Privilege>
+        <Privilege>prvExportToExcel</Privilege>
       </Privileges>
-    </SecurityRole>
-    <SecurityRole>
-      <Name>Laptop User</Name>
     </SecurityRole>
   </SecurityRoles>
 
