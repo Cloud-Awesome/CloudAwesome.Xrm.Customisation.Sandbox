@@ -131,6 +131,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AttributeMetadataContext.cs" />
+    <Compile Include="AttributeMetadataTypes\BooleanAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\DateTimeAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\IAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\PicklistAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\IntegerAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\StringAttributeMetadataType.cs" />
     <Compile Include="ConfigurationModels\Area.cs" />
     <Compile Include="ConfigurationModels\Attribute.cs" />
     <Compile Include="ConfigurationModels\ConfigurationManifest.cs" />
@@ -143,6 +150,7 @@
     <Compile Include="ConfigurationModels\SecurityRole.cs" />
     <Compile Include="ConfigurationModels\SiteMap.cs" />
     <Compile Include="ConfigurationModels\SubArea.cs" />
+    <Compile Include="CustomisationHelpers.cs" />
     <Compile Include="EntityModel\CrmServiceContext.cs" />
     <Compile Include="EntityModel\OptionSets.cs" />
     <Compile Include="EntityModel\PluginAssembly.cs" />

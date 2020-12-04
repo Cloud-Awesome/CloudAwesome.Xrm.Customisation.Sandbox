@@ -46,7 +46,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             // MigrateBulkDeletionJobs
             // ConfigureSecurityFromManifest
             // ToggleProcessesFromManifest
-
+            
             Console.ReadKey();
         }
 
@@ -101,7 +101,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             //-----------------------------------------
             // ii. Create customisations
 
-            // CreateOptionSets(manifest, client);
+            CreateOptionSets(manifest, client);
             // CreateSecurityRoles(manifest, client);
             CreateEntityModel(manifest, client);
             // 4. Create Model Driven Apps
@@ -121,19 +121,20 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 
                 var logicalName = string.IsNullOrEmpty(entityManifest.SchemaName)
                     ? entityManifest.SchemaName
-                    : CreateLogicalNameFromDisplayName(entityManifest.DisplayName, publisherPrefix);
+                    : CustomisationHelpers.CreateLogicalNameFromDisplayName(entityManifest.DisplayName, publisherPrefix);
 
+                // TODO - AutoMapper!!
                 var createEntityRequest = new CreateEntityRequest()
                 {
                     Entity = new EntityMetadata()
                     {
                         LogicalName = logicalName,
                         SchemaName = logicalName,
-                        DisplayName = CreateLabelFromString(entityManifest.DisplayName),
-                        DisplayCollectionName = CreateLabelFromString(entityManifest.PluralName), // TODO - check if null and calculate if necessary
+                        DisplayName = CustomisationHelpers.CreateLabelFromString(entityManifest.DisplayName),
+                        DisplayCollectionName = CustomisationHelpers.CreateLabelFromString(entityManifest.PluralName), // TODO - check if null and calculate if necessary
                         OwnershipType = entityManifest.OwnershipType,
                         IsActivity = entityManifest.IsActivity,
-                        Description = CreateLabelFromString(entityManifest.Description),
+                        Description = CustomisationHelpers.CreateLabelFromString(entityManifest.Description),
                         IsQuickCreateEnabled = entityManifest.IsQuickCreateEnabled,
                         IsAuditEnabled = new BooleanManagedProperty(entityManifest.IsAuditEnabled),
                         IsDuplicateDetectionEnabled = new BooleanManagedProperty(entityManifest.IsDuplicateDetectionEnabled),
@@ -149,9 +150,9 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     {
                         LogicalName = String.Format($"{publisherPrefix}_name"),
                         SchemaName = String.Format($"{publisherPrefix}_name"),
-                        DisplayName = CreateLabelFromString(entityManifest.PrimaryAttributeName),
+                        DisplayName = CustomisationHelpers.CreateLabelFromString(entityManifest.PrimaryAttributeName),
                         MaxLength = entityManifest.PrimaryAttributeMaxLength,
-                        Description = CreateLabelFromString(entityManifest.PrimaryAttributeDescription)
+                        Description = CustomisationHelpers.CreateLabelFromString(entityManifest.PrimaryAttributeDescription)
                     }
                 };
 
@@ -162,26 +163,17 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 foreach (var attributeManifest in entityManifest.Attributes)
                 {
-                    // TODO - Update, currently only does Create ;)
+                    // TODO - Update, currently only does Create
                     // TODO - forms and views
                     // TODO - subgrids
-
-                    // TODO - All other attribute types!! only Strings so far =D
-
-                    var stringAttribute = new StringAttributeMetadata()
-                    {
-                        LogicalName = CreateLogicalNameFromDisplayName(attributeManifest.DisplayName, publisherPrefix),
-                        SchemaName = CreateLogicalNameFromDisplayName(attributeManifest.DisplayName, publisherPrefix),
-                        DisplayName = CreateLabelFromString(attributeManifest.DisplayName),
-                        Description = CreateLabelFromString(attributeManifest.Description),
-                        RequiredLevel = new AttributeRequiredLevelManagedProperty(attributeManifest.RequiredLevel),
-                        IsAuditEnabled = new BooleanManagedProperty(attributeManifest.IsAuditEnabled),
-                        MaxLength = attributeManifest.MaxLength,
-                    };
+                    // TODO - * All other attribute types!! only Strings so far
                     
+                    var attributeStrategy = new AttributeMetadataContext(attributeManifest, publisherPrefix);
+                    var attributeMetadata = attributeStrategy.GetAttributeMetadata(attributeManifest.DataType);
+
                     var request = new CreateAttributeRequest()
                     {
-                        Attribute = stringAttribute,
+                        Attribute = attributeMetadata.AttributeMetadata,
                         EntityName = entityManifest.SchemaName,
                         SolutionUniqueName = manifest.SolutionName
                     };
@@ -196,30 +188,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
         }
 
-        public static Label CreateLabelFromString(string displayString, int languageCode = 1033)
-        {
-            return new Label(displayString, languageCode);
-        }
-
-        public static string CreateLogicalNameFromDisplayName(string displayName, string publisherPrefix, bool isLookupAttribute = false)
-        {
-            var validNameChars = new Regex("[A-Z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-            var result = new StringBuilder();
-            result.AppendFormat("{0}_", publisherPrefix);
-            foreach (var match in validNameChars.Matches(displayName))
-            {
-                result.Append(match);
-            }
-
-            if (isLookupAttribute && (displayName.Substring(displayName.Length - 2) != "id"))
-            {
-                result.Append("id");
-            }
-
-            return result.ToString().ToLower().Trim();
-        }
-
+        
         public static string GetPublisherPrefixFromSolution(ConfigurationManifest manifest, CrmServiceClient client)
         {
             var publisherFetchXml =

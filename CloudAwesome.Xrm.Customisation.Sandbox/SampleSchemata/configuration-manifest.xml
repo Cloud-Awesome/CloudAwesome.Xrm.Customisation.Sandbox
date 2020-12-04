@@ -2,7 +2,7 @@
 <ConfigurationManifest>
   <SolutionName>EntityCreationSandbox</SolutionName>
   <PubilsherUniqueName>cloudawesome</PubilsherUniqueName>
-  <Clobber>false</Clobber>
+  <Clobber>true</Clobber>
 
   <!-- CDS connection details -->
   <!-- Can provide any of the below, or none if provided outside of config file 
