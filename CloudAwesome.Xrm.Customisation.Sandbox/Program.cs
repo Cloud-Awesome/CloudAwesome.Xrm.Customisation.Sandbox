@@ -2,6 +2,8 @@
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Xml.Serialization;
 using CloudAwesome.Xrm.Customisation.Sandbox.EntityModel;
 using CloudAwesome.Xrm.Customisation.Sandbox.PluginModels;
@@ -9,10 +11,12 @@ using CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
 using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Crm.Sdk.Messages;
+using Microsoft.Xrm.Sdk.Metadata;
 using Microsoft.Xrm.Tooling.Connector;
+using Attribute = CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels.Attribute;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
+using PrivilegeDepth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth;
 using ServiceEndpoint = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox
@@ -21,13 +25,19 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
+            //var client = new CrmServiceClient(
+            //    "AuthType=Office365;" +
+            //    "Username=arthur@cloudawesome.uk;" +
+            //    "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
+            //    "Url=https://awesome-sandbox.crm11.dynamics.com");
+
             var client = new CrmServiceClient(
-                "AuthType=Office365;" +
-                "Username=arthur@cloudawesome.uk;" +
-                "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
+                "AuthType=ClientSecret;" +
+                "ClientId=70173e6e-3bd4-4ae0-a3b0-460cf3ae3e5d;" +
+                "ClientSecret='W.Ykma-6DNXxQOmVX96h151Si6_4Pc44x.';" +
                 "Url=https://awesome-sandbox.crm11.dynamics.com");
 
-            //var manifest = GetPluginManifest("../../SameplSchemata/SampleManifest_v2.xml");
+            //var manifest = GetPluginManifest("../../SampleSchemata/SampleManifest_v2.xml");
             var configurationManifest = GetConfigurationManifest("../../SampleSchemata/configuration-manifest.xml");
 
             // RegisterPlugins(manifest, client);
@@ -75,7 +85,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 }
 
-                // 4. Optionsets
+                // 4.Optionsets
                 Console.WriteLine("Deleting Global Optionsets");
                 foreach (var optionset in manifest.OptionSets)
                 {
@@ -88,25 +98,199 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 }
             }
 
-
             //-----------------------------------------
             // ii. Create customisations
 
-            // 1. Create Optionsets
+            // CreateOptionSets(manifest, client);
+            // CreateSecurityRoles(manifest, client);
+            CreateEntityModel(manifest, client);
+            // 4. Create Model Driven Apps
 
+            Console.WriteLine("All customisations processed!");
+        }
+
+        public static void CreateEntityModel(ConfigurationManifest manifest, CrmServiceClient client)
+        {
+            var publisherPrefix = GetPublisherPrefixFromSolution(manifest, client);
+
+            Console.WriteLine($"Publisher prefix = {publisherPrefix}");
+
+            foreach (var entityManifest in manifest.Entities)
+            {
+                // TODO - Update, currently only Creates ;)
+                
+                var logicalName = string.IsNullOrEmpty(entityManifest.SchemaName)
+                    ? entityManifest.SchemaName
+                    : CreateLogicalNameFromDisplayName(entityManifest.DisplayName, publisherPrefix);
+
+                var createEntityRequest = new CreateEntityRequest()
+                {
+                    Entity = new EntityMetadata()
+                    {
+                        LogicalName = logicalName,
+                        SchemaName = logicalName,
+                        DisplayName = CreateLabelFromString(entityManifest.DisplayName),
+                        DisplayCollectionName = CreateLabelFromString(entityManifest.PluralName), // TODO - check if null and calculate if necessary
+                        OwnershipType = entityManifest.OwnershipType,
+                        IsActivity = entityManifest.IsActivity,
+                        Description = CreateLabelFromString(entityManifest.Description),
+                        IsQuickCreateEnabled = entityManifest.IsQuickCreateEnabled,
+                        IsAuditEnabled = new BooleanManagedProperty(entityManifest.IsAuditEnabled),
+                        IsDuplicateDetectionEnabled = new BooleanManagedProperty(entityManifest.IsDuplicateDetectionEnabled),
+                        IsBusinessProcessEnabled = entityManifest.IsBusinessProcessEnabled,
+                        IsDocumentManagementEnabled = entityManifest.IsDocumentManagementEnabled,
+                        IsValidForQueue = new BooleanManagedProperty(entityManifest.IsValidForQueue),
+                        ChangeTrackingEnabled = entityManifest.ChangeTrackingEnabled
+                    },
+                    HasActivities = entityManifest.HasActivities,
+                    HasNotes = entityManifest.HasNotes,
+                    SolutionUniqueName = manifest.SolutionName,
+                    PrimaryAttribute = new StringAttributeMetadata()
+                    {
+                        LogicalName = String.Format($"{publisherPrefix}_name"),
+                        SchemaName = String.Format($"{publisherPrefix}_name"),
+                        DisplayName = CreateLabelFromString(entityManifest.PrimaryAttributeName),
+                        MaxLength = entityManifest.PrimaryAttributeMaxLength,
+                        Description = CreateLabelFromString(entityManifest.PrimaryAttributeDescription)
+                    }
+                };
+
+                Console.WriteLine($"Creating Entity {entityManifest.DisplayName}");
+                var response = (CreateEntityResponse)client.Execute(createEntityRequest);
+                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName, response.EntityId, ComponentType.Entity);
+                Console.WriteLine($"    Entity {entityManifest.DisplayName} has been successfully created and added to solution {manifest.SolutionName}");
+
+                foreach (var attributeManifest in entityManifest.Attributes)
+                {
+                    // TODO - Update, currently only does Create ;)
+                    // TODO - forms and views
+                    // TODO - subgrids
+
+                    // TODO - All other attribute types!! only Strings so far =D
+
+                    var stringAttribute = new StringAttributeMetadata()
+                    {
+                        LogicalName = CreateLogicalNameFromDisplayName(attributeManifest.DisplayName, publisherPrefix),
+                        SchemaName = CreateLogicalNameFromDisplayName(attributeManifest.DisplayName, publisherPrefix),
+                        DisplayName = CreateLabelFromString(attributeManifest.DisplayName),
+                        Description = CreateLabelFromString(attributeManifest.Description),
+                        RequiredLevel = new AttributeRequiredLevelManagedProperty(attributeManifest.RequiredLevel),
+                        IsAuditEnabled = new BooleanManagedProperty(attributeManifest.IsAuditEnabled),
+                        MaxLength = attributeManifest.MaxLength,
+                    };
+                    
+                    var request = new CreateAttributeRequest()
+                    {
+                        Attribute = stringAttribute,
+                        EntityName = entityManifest.SchemaName,
+                        SolutionUniqueName = manifest.SolutionName
+                    };
+
+                    var createdAttribute = (CreateAttributeResponse) client.Execute(request);
+
+                    Console.WriteLine($"Attribute '{attributeManifest.DisplayName}' has been created");
+
+                }
+
+            }
+
+        }
+
+        public static Label CreateLabelFromString(string displayString, int languageCode = 1033)
+        {
+            return new Label(displayString, languageCode);
+        }
+
+        public static string CreateLogicalNameFromDisplayName(string displayName, string publisherPrefix, bool isLookupAttribute = false)
+        {
+            var validNameChars = new Regex("[A-Z0-9]", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+            var result = new StringBuilder();
+            result.AppendFormat("{0}_", publisherPrefix);
+            foreach (var match in validNameChars.Matches(displayName))
+            {
+                result.Append(match);
+            }
+
+            if (isLookupAttribute && (displayName.Substring(displayName.Length - 2) != "id"))
+            {
+                result.Append("id");
+            }
+
+            return result.ToString().ToLower().Trim();
+        }
+
+        public static string GetPublisherPrefixFromSolution(ConfigurationManifest manifest, CrmServiceClient client)
+        {
+            var publisherFetchXml =
+                $"<fetch version=\"1.0\" output-format=\"xml-platform\" mapping=\"logical\" distinct=\"true\">\r\n\t<entity name=\"publisher\">\r\n\t\t<attribute name=\"publisherid\" />\r\n\t\t<attribute name=\"friendlyname\" />\r\n\t\t<attribute name=\"uniquename\" />\r\n\t\t<attribute name=\"customizationprefix\" />\r\n\t\t<link-entity name=\"solution\" from=\"publisherid\" to=\"publisherid\" link-type=\"inner\" alias=\"ab\">\r\n\t\t\t<filter type=\"and\">\r\n\t\t\t\t<condition attribute=\"uniquename\" operator=\"eq\" value=\"{manifest.SolutionName}\" />\r\n\t\t\t</filter>\r\n\t\t</link-entity>\r\n\t</entity>\r\n</fetch>";
+
+            var publisherQuery = new FetchExpression(publisherFetchXml);
+            var publisher = client.RetrieveMultiple(publisherQuery).Entities.FirstOrDefault();
+            var publisherPrefix = publisher["customizationprefix"].ToString();
+            return publisherPrefix;
+        }
+
+        public static void CreateSecurityRoles(ConfigurationManifest manifest, CrmServiceClient client)
+        {
+            // TODO - Doesn't work yet... ;)
+            foreach (var securityRole in manifest.SecurityRoles)
+            {
+                var role = new Microsoft.Xrm.Sdk.Entity("role");
+                role["name"] = securityRole.Name;
+                role["businessunitid"] =
+                    new EntityReference("businessunit", Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
+
+                var createdRole = client.Create(role);
+
+                if (!string.IsNullOrEmpty(manifest.SolutionName))
+                {
+                    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                        createdRole, ComponentType.Role);
+                }
+
+                foreach (var privilege in securityRole.Privileges)
+                {
+                    var retrievePrivilegesByName = new QueryExpression("privilege")
+                    {
+                        ColumnSet = new ColumnSet("name"),
+                        Criteria = new FilterExpression
+                        {
+                            Conditions =
+                            {
+                                new ConditionExpression("name", ConditionOperator.Equal, privilege)
+                            }
+                        }
+                    };
+                    var privilegeId = client.RetrieveMultiple(retrievePrivilegesByName).Entities.FirstOrDefault().Id;
+
+                    var rolePrivilege = new RolePrivilege((int) PrivilegeDepth.Global, privilegeId,
+                        Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
+                    var addPrivilege = new AddPrivilegesRoleRequest()
+                    {
+                        RoleId = createdRole,
+                        Privileges = new[] {rolePrivilege}
+                    };
+                    client.Execute(addPrivilege);
+                }
+            }
+        }
+
+        public static void CreateOptionSets(ConfigurationManifest manifest, CrmServiceClient client)
+        {
             Console.WriteLine("Creating Global Optionsets");
 
             // TODO - check in case no optionsets are in manifest
-            foreach (var optionset in manifest.OptionSets)
+            foreach (var optionSet in manifest.OptionSets)
             {
                 var tester = new OptionSetMetadata
                 {
-                    Name = optionset.SchemaName,
-                    DisplayName = new Label(optionset.DisplayName, 1033),
+                    Name = optionSet.SchemaName,
+                    DisplayName = new Label(optionSet.DisplayName, 1033),
                     IsGlobal = true,
                     OptionSetType = OptionSetType.Picklist,
                 };
-                foreach (var option in optionset.Items)
+                foreach (var option in optionSet.Items)
                 {
                     tester.Options.Add(new OptionMetadata(new Label(option, 1033), null));
                 }
@@ -116,71 +300,16 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     OptionSet = tester
                 };
 
-                CreateOptionSetResponse response = (CreateOptionSetResponse)client.Execute(optionSetRequest);
+                CreateOptionSetResponse response = (CreateOptionSetResponse) client.Execute(optionSetRequest);
 
                 if (!string.IsNullOrEmpty(manifest.SolutionName))
                 {
                     SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
                         response.OptionSetId, ComponentType.OptionSet);
                 }
-                Console.WriteLine($"    Optionset {optionset.DisplayName} created successfully");
+
+                Console.WriteLine($"    Optionset {optionSet.DisplayName} created successfully");
             }
-
-            // 2. Create Security Roles
-            // TODO - Doesn't work yet... ;)
-            //foreach (var securityRole in manifest.SecurityRoles)
-            //{
-            //    var role = new Microsoft.Xrm.Sdk.Entity("role");
-            //    role["name"] = securityRole.Name;
-            //    role["businessunitid"] =
-            //        new EntityReference("businessunit", Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
-
-                //var createdRole = client.Create(role);
-
-                //if (!string.IsNullOrEmpty(manifest.SolutionName))
-                //{
-                //    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
-                //        createdRole, ComponentType.Role);
-                //}
-
-            //    RolePrivilege[] privs = new RolePrivilege[securityRole.Privileges.Count()];
-            //    foreach (var privilege in securityRole.Privileges)
-            //    {
-            //        var retrievePrivsByName = new QueryExpression("privilege")
-            //        {
-            //            ColumnSet = new ColumnSet("name"),
-            //            Criteria = new FilterExpression
-            //            {
-            //                Conditions =
-            //                {
-            //                    new ConditionExpression("name", ConditionOperator.Equal, privilege)
-            //                }
-            //            }
-            //        };
-
-            //        var privId = client.RetrieveMultiple(retrievePrivsByName).Entities.FirstOrDefault().Id;
-            //        AddPrivilegesRoleRequest addPrivilege = new AddPrivilegesRoleRequest()
-            //        {
-            //            RoleId = createdRole,
-            //            Privileges = new[]
-            //            {
-            //                new RolePrivilege
-            //                {
-            //                    PrivilegeId = privId,
-            //                    Depth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth.Global
-            //                }
-            //            }
-            //        };
-            //        client.Execute(addPrivilege);
-            //    }
-            //}
-
-            // 3. Create Entities
-
-            // 4. Create Model Driven Apps
-
-
-            Console.WriteLine("All customisations processed!");
         }
 
         public static void RegisterServiceEndPoints(PluginManifest manifest, CrmServiceClient client)
@@ -520,18 +649,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         //  Maybe combine into ServiceEndpoint method? It's the same entity, just another contract.
         //  Not sure about the Key-Value parameters though...
         // https://docs.microsoft.com/en-us/dynamics365/customerengagement/on-premises/developer/use-webhooks
-
-
-        // (Maybe do this during each section above?)
-        // Add everything to specified solution
-        // Remove anything unwanted? 
-        //  (Or clobber before registering?)
-
-
-        // (Post-v1)
-        // (Register CWAs)
-
-
+        
         public static PluginManifest GetPluginManifest(string filePath)
         {
             return DeserialiseFromFile<PluginManifest>(filePath);

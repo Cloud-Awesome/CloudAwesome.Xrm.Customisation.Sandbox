@@ -2,7 +2,7 @@
 <ConfigurationManifest>
   <SolutionName>EntityCreationSandbox</SolutionName>
   <PubilsherUniqueName>cloudawesome</PubilsherUniqueName>
-  <Clobber>true</Clobber>
+  <Clobber>false</Clobber>
 
   <!-- CDS connection details -->
   <!-- Can provide any of the below, or none if provided outside of config file 
@@ -22,21 +22,33 @@
       <PluralName>Laptops</PluralName>
       <SchemaName>awe_laptop</SchemaName>
       <Description>...</Description>
-      <OwnershipType>User</OwnershipType>
+      <OwnershipType>UserOwned</OwnershipType>
       <PrimaryAttributeName>Name</PrimaryAttributeName>
       <PrimaryAttributeMaxLength>50</PrimaryAttributeMaxLength>
       <PrimaryAttributeDescription>...</PrimaryAttributeDescription>
       <IsActivity>false</IsActivity>
       <HasActivities>false</HasActivities>
       <HasNotes>true</HasNotes>
-      <IsQuickCreateEnabled>false</IsQuickCreateEnabled>
+      <IsQuickCreateEnabled>true</IsQuickCreateEnabled>
       <IsAuditEnabled>true</IsAuditEnabled>
       <IsDuplicateDetectionEnabled>false</IsDuplicateDetectionEnabled>
       <IsBusinessProcessEnabled>false</IsBusinessProcessEnabled>
       <IsDocumentManagementEnabled>false</IsDocumentManagementEnabled>
+      <IsValidForQueue>true</IsValidForQueue>
+      <ChangeTrackingEnabled>false</ChangeTrackingEnabled>
       <NavigationColour></NavigationColour>
       <Attributes>
         <Attribute>
+          <DisplayName>Release Date</DisplayName>
+          <DataType>String</DataType>
+          <Description>...</Description>
+          <RequiredLevel>Recommended</RequiredLevel>
+          <IsAuditEnabled>true</IsAuditEnabled>
+          <MaxLength>8</MaxLength>
+          <AddToForm>true</AddToForm>
+          <AddToViewOrder>1</AddToViewOrder>
+        </Attribute>
+        <!--<Attribute>
           <DisplayName>Release Date</DisplayName>
           <DataType>DateTime</DataType>
           <Description>...</Description>
@@ -62,7 +74,7 @@
           <ParentCascade></ParentCascade>
           <AddToForm>true</AddToForm>
           <AddToViewOrder>1</AddToViewOrder>
-        </Attribute>
+        </Attribute>-->
       </Attributes>
       <EntityPermissions>
         <Permissions>

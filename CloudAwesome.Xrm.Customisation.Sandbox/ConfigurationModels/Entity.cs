@@ -1,4 +1,5 @@
 ﻿using System.Xml.Serialization;
+using Microsoft.Xrm.Sdk.Metadata;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels
 {
@@ -8,18 +9,20 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels
         public string PluralName { get; set; }
         public string SchemaName { get; set; }
         public string Description { get; set; }
-        public string OwnershipType { get; set; }
+        public OwnershipTypes OwnershipType { get; set; }
         public string PrimaryAttributeName { get; set; }
-        public string PrimaryAttributeMaxLength { get; set; }
+        public int? PrimaryAttributeMaxLength { get; set; }
         public string PrimaryAttributeDescription { get; set; }
-        public string IsActivity { get; set; }
-        public string HasActivities { get; set; }
-        public string HasNotes { get; set; }
-        public string IsQuickCreateEnabled { get; set; }
-        public string IsAuditEnabled { get; set; }
-        public string IsDuplicateDetectionEnabled { get; set; }
-        public string IsBusinessProcessEnabled { get; set; }
-        public string IsDocumentManagementEnabled { get; set; }
+        public bool IsActivity { get; set; }
+        public bool HasActivities { get; set; }
+        public bool HasNotes { get; set; }
+        public bool IsQuickCreateEnabled { get; set; }
+        public bool IsAuditEnabled { get; set; }
+        public bool IsDuplicateDetectionEnabled { get; set; }
+        public bool IsBusinessProcessEnabled { get; set; }
+        public bool IsDocumentManagementEnabled { get; set; }
+        public bool IsValidForQueue { get; set; }
+        public bool ChangeTrackingEnabled { get; set; }
         public string NavigationColour { get; set; }
 
         public Attribute[] Attributes { get; set; }
