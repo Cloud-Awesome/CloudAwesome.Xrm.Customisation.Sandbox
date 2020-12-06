@@ -190,10 +190,7 @@
   <ItemGroup>
     <Content Include="SampleSchemata\configuration-manifest.xml" />
     <Content Include="ProcessesManifest.xml" />
-    <Content Include="SampleSchemata\SampleManifest.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="SampleSchemata\SampleManifest_v2.xml" />
+    <Content Include="SampleSchemata\SampleManifest.xml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="ProcessModels\" />
