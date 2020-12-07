@@ -135,6 +135,8 @@
     <Compile Include="AttributeMetadataTypes\BooleanAttributeMetadataType.cs" />
     <Compile Include="AttributeMetadataTypes\DateTimeAttributeMetadataType.cs" />
     <Compile Include="AttributeMetadataTypes\IAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\LookupAttributeMetadataType.cs" />
+    <Compile Include="AttributeMetadataTypes\MemoAttributeMetadataType.cs" />
     <Compile Include="AttributeMetadataTypes\PicklistAttributeMetadataType.cs" />
     <Compile Include="AttributeMetadataTypes\IntegerAttributeMetadataType.cs" />
     <Compile Include="AttributeMetadataTypes\StringAttributeMetadataType.cs" />
@@ -143,6 +145,7 @@
     <Compile Include="ConfigurationModels\ConfigurationManifest.cs" />
     <Compile Include="ConfigurationModels\Entity.cs" />
     <Compile Include="ConfigurationModels\EntityPermission.cs" />
+    <Compile Include="ConfigurationModels\FormXrmControlClass.cs" />
     <Compile Include="ConfigurationModels\Group.cs" />
     <Compile Include="ConfigurationModels\ModelDrivenApp.cs" />
     <Compile Include="ConfigurationModels\OptionSet.cs" />

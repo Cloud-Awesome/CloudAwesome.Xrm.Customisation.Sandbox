@@ -2,7 +2,7 @@
 <ConfigurationManifest>
   <SolutionName>EntityCreationSandbox</SolutionName>
   <PubilsherUniqueName>cloudawesome</PubilsherUniqueName>
-  <Clobber>true</Clobber>
+  <Clobber>false</Clobber>
 
   <!-- CDS connection details -->
   <!-- Can provide any of the below, or none if provided outside of config file 
@@ -39,42 +39,67 @@
       <NavigationColour></NavigationColour>
       <Attributes>
         <Attribute>
-          <DisplayName>Release Date</DisplayName>
+          <DisplayName>Laptop Make</DisplayName>
+          <SchemaName>awe_laptopmake</SchemaName>
           <DataType>String</DataType>
-          <Description>...</Description>
+          <Description>The make of the laptop ...</Description>
           <RequiredLevel>Recommended</RequiredLevel>
           <IsAuditEnabled>true</IsAuditEnabled>
           <MaxLength>8</MaxLength>
+          <StringFormat>Text</StringFormat>
           <AddToForm>true</AddToForm>
           <AddToViewOrder>1</AddToViewOrder>
         </Attribute>
-        <!--<Attribute>
+        <Attribute>
+          <DisplayName>Producer Website</DisplayName>
+          <DataType>String</DataType>
+          <RequiredLevel>Recommended</RequiredLevel>
+          <IsAuditEnabled>true</IsAuditEnabled>
+          <MaxLength>200</MaxLength>
+          <Description>Producer website</Description>
+          <StringFormat>Url</StringFormat>
+          <AddToForm>true</AddToForm>
+          <AddToViewOrder>1</AddToViewOrder>
+        </Attribute>
+        <Attribute>
           <DisplayName>Release Date</DisplayName>
           <DataType>DateTime</DataType>
-          <Description>...</Description>
+          <Description>When was the laptop released in the UK</Description>
+          <DateTimeFormat>DateOnly</DateTimeFormat>
           <AddToForm>true</AddToForm>
           <AddToViewOrder>1</AddToViewOrder>
         </Attribute>
         <Attribute>
           <DisplayName>Model</DisplayName>
           <SchemaName>awe_model</SchemaName>
-          <DataType>GlobalOptionSet</DataType>
+          <DataType>Picklist</DataType>
           <GlobalOptionSet>awe_model</GlobalOptionSet>
-          <Description>...</Description>
-          <RequiredLevel>BusinessRequired</RequiredLevel>
-          <SourceType></SourceType>
-          <MaxLength></MaxLength>
-          <StringFormat></StringFormat>
-          <AutoNumberFormat></AutoNumberFormat>
-          <DateTimeFormat></DateTimeFormat>
-          <MinValue></MinValue>
-          <MaxValue></MaxValue>
-          <ReferencedEntity></ReferencedEntity>
-          <RelationshipNameSuffix></RelationshipNameSuffix>
-          <ParentCascade></ParentCascade>
+          <Description>Make and model of the laptop</Description>
+          <RequiredLevel>ApplicationRequired</RequiredLevel>
           <AddToForm>true</AddToForm>
           <AddToViewOrder>1</AddToViewOrder>
-        </Attribute>-->
+        </Attribute>
+        <Attribute>
+          <DisplayName>Valid for WFH</DisplayName>
+          <SchemaName>awe_isvalidforwfh</SchemaName>
+          <DataType>Boolean</DataType>
+          <Description>Is employee allowed to work from home with this model of laptop</Description>
+          <AddToForm>true</AddToForm>
+        </Attribute>
+        <Attribute>
+          <DisplayName>Remaining stock</DisplayName>
+          <DataType>Integer</DataType>
+          <Description>How many of these laptops are in stock</Description>
+          <MinValue>0</MinValue>
+          <MaxValue>400</MaxValue>
+          <AddToForm>true</AddToForm>
+        </Attribute>
+        <Attribute>
+          <DisplayName>Model description</DisplayName>
+          <DataType>Memo</DataType>
+          <Description>Longer form description of the laptop</Description>
+          <AddToForm>true</AddToForm>
+        </Attribute>
       </Attributes>
       <EntityPermissions>
         <Permissions>
@@ -98,6 +123,15 @@
           <Share>None</Share>
         </Permissions>
       </EntityPermissions>
+    </Entity>
+    <Entity>
+      <DisplayName>Mouse</DisplayName>
+      <PluralName>Mice</PluralName>
+      <Description>Stock of mouses available to go with laptops</Description>
+      <OwnershipType>UserOwned</OwnershipType>
+      <PrimaryAttributeName>Name</PrimaryAttributeName>
+      <PrimaryAttributeMaxLength>50</PrimaryAttributeMaxLength>
+      <PrimaryAttributeDescription>...</PrimaryAttributeDescription>
     </Entity>
   </Entities>
 

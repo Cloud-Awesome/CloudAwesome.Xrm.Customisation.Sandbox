@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Xml;
 using System.Xml.Serialization;
 using CloudAwesome.Xrm.Customisation.Sandbox.EntityModel;
 using CloudAwesome.Xrm.Customisation.Sandbox.PluginModels;
@@ -56,10 +58,39 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             // i. Clobber customisations
             if (manifest.Clobber)
             {
-                Console.WriteLine("Clobber is set to TRUE");
+                Console.WriteLine("** Clobber is set to TRUE ** ");
 
                 // 1. Apps
+
                 // 2. Entities
+
+                // 2.1 Views
+                // 2.2 Forms
+                // 2.3 Lookups/Relationships
+                // 2.4 Entities
+                Console.WriteLine("Deleting Entities");
+                foreach (var manifestEntity in manifest.Entities)
+                {
+                    var logicalName = string.IsNullOrEmpty(manifestEntity.SchemaName)
+                        ? CustomisationHelpers.CreateLogicalNameFromDisplayName(manifestEntity.DisplayName, "awe")
+                        : manifestEntity.SchemaName;
+
+                    try
+                    {
+                        var deleteEntityRequest = new DeleteEntityRequest()
+                        {
+                            LogicalName = logicalName
+                        };
+                        client.Execute(deleteEntityRequest);
+
+                        Console.WriteLine($"    Entity {logicalName} has been deleted");
+                    }
+                    catch
+                    {
+                        Console.WriteLine($"    *** Failed to delete entity {logicalName}");
+                    }
+                    
+                }
 
                 // 3. Security Roles
                 Console.WriteLine("Deleting Security Roles");
@@ -85,28 +116,75 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 }
 
-                // 4.Optionsets
+                // 4. Optionsets
                 Console.WriteLine("Deleting Global Optionsets");
                 foreach (var optionset in manifest.OptionSets)
                 {
-                    DeleteOptionSetRequest deleteOptionSetRequest = new DeleteOptionSetRequest()
+                    try
                     {
-                        Name = optionset.SchemaName
-                    };
-                    client.Execute(deleteOptionSetRequest);
-                    Console.WriteLine($"    Global Optionset {optionset.DisplayName} has been deleted");
+                        DeleteOptionSetRequest deleteOptionSetRequest = new DeleteOptionSetRequest()
+                        {
+                            Name = optionset.SchemaName
+                        };
+                        client.Execute(deleteOptionSetRequest);
+
+                        Console.WriteLine($"    Global Optionset {optionset.DisplayName} has been deleted");
+                    }
+                    catch { }
+
                 }
             }
 
             //-----------------------------------------
             // ii. Create customisations
 
-            CreateOptionSets(manifest, client);
+            //CreateOptionSets(manifest, client);
             // CreateSecurityRoles(manifest, client);
-            CreateEntityModel(manifest, client);
-            // 4. Create Model Driven Apps
+            //CreateEntityModel(manifest, client);
+            CreateModelDrivenApps(manifest, client);
 
             Console.WriteLine("All customisations processed!");
+        }
+
+        public static void CreateModelDrivenApps(ConfigurationManifest manifest, CrmServiceClient client)
+        {
+            foreach (var app in manifest.ModelDrivenApps)
+            {
+                var appEntity = new Microsoft.Xrm.Sdk.Entity("appmodule");
+                appEntity["name"] = app.Name;
+                appEntity["uniquename"] = app.UniqueName;
+                appEntity["webresourceid"] = Guid.Parse("953b9fac-1e5e-e611-80d6-00155ded156f");
+
+                var createdApp = client.Create(appEntity);
+
+                var addComponents = new AddAppComponentsRequest()
+                {
+                    AppId = createdApp,
+                    Components = new EntityReferenceCollection()
+                    {
+                        new EntityReference("awe_laptop"),
+                        new EntityReference("awe_mouse")
+                    }
+                };
+                client.Execute(addComponents);
+
+                // TODO - **** Need to find out how to create an app's SiteMap!!!
+
+                //var appValidationRequest = new ValidateAppRequest()
+                //{
+                //    AppModuleId = createdApp
+                //};
+                //var validationResponse = (ValidateAppResponse) client.Execute(appValidationRequest);
+
+                //if (!validationResponse.AppValidationResponse.ValidationSuccess)
+                //{
+                //    // Check for ErrorType of "error", not just "warning" which shows stuff you don't care about ;)
+                //    throw new Exception($"Validation of model driven app {app.Name} threw {validationResponse.AppValidationResponse.ValidationIssueList.Length} errors");
+                //}
+
+
+
+            }
         }
 
         public static void CreateEntityModel(ConfigurationManifest manifest, CrmServiceClient client)
@@ -118,10 +196,10 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             foreach (var entityManifest in manifest.Entities)
             {
                 // TODO - Update, currently only Creates ;)
-                
+
                 var logicalName = string.IsNullOrEmpty(entityManifest.SchemaName)
-                    ? entityManifest.SchemaName
-                    : CustomisationHelpers.CreateLogicalNameFromDisplayName(entityManifest.DisplayName, publisherPrefix);
+                    ? CustomisationHelpers.CreateLogicalNameFromDisplayName(entityManifest.DisplayName, publisherPrefix)
+                    : entityManifest.SchemaName;
 
                 // TODO - AutoMapper!!
                 var createEntityRequest = new CreateEntityRequest()
@@ -158,9 +236,37 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 Console.WriteLine($"Creating Entity {entityManifest.DisplayName}");
                 var response = (CreateEntityResponse)client.Execute(createEntityRequest);
-                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName, response.EntityId, ComponentType.Entity);
+
                 Console.WriteLine($"    Entity {entityManifest.DisplayName} has been successfully created and added to solution {manifest.SolutionName}");
 
+                // TODO - maybe include default attributes in the header (e.g. primary attribute, owner, etc...)
+                var rawFormXml =
+                    @"<form>
+                      <tabs>
+                        <tab name=""tab0"" verticallayout=""true"" id=""{f577400b-c4d4-4417-b37d-3a3a5ed0b5d7}"" IsUserDefined=""0"">
+                          <labels>
+                            <label description=""General"" languagecode=""1033"" />
+                          </labels>
+                          <columns>
+                            <column width=""100%"">
+                              <sections>
+                                <section name=""default"" showlabel=""false"" showbar=""false"" columns=""1"" id=""{c51dcca6-462b-4642-8fb5-42217724cce2}"" IsUserDefined=""0"">
+                                  <labels>
+                                    <label description=""Default"" languagecode=""1033"" />
+                                  </labels>
+                                  <rows>
+                                  </rows>
+                                </section>
+                              </sections>
+                            </column>
+                          </columns>
+                        </tab>
+                      </tabs>
+                    </form>";
+                var formXml = new XmlDocument();
+                formXml.LoadXml(rawFormXml);
+                
+                if (entityManifest.Attributes== null) continue;
                 foreach (var attributeManifest in entityManifest.Attributes)
                 {
                     // TODO - Update, currently only does Create
@@ -179,15 +285,45 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                     };
 
                     var createdAttribute = (CreateAttributeResponse) client.Execute(request);
+                    Console.WriteLine($"        Attribute '{attributeManifest.DisplayName}' has been created");
 
-                    Console.WriteLine($"Attribute '{attributeManifest.DisplayName}' has been created");
-
+                    if (attributeManifest.AddToForm)
+                    {
+                        AddAttributeToForm(formXml, attributeManifest, client);
+                        Console.WriteLine($"            Attribute '{attributeManifest.DisplayName}' added to form");
+                    }
                 }
 
-            }
+                var newForm = new Microsoft.Xrm.Sdk.Entity("systemform")
+                {
+                    Attributes = new AttributeCollection()
+                    {
+                        new KeyValuePair<string, object>("formxml", formXml.InnerXml),
+                        new KeyValuePair<string, object>("objecttypecode", entityManifest.SchemaName),
+                        new KeyValuePair<string, object>("type", new OptionSetValue(2)),
+                        new KeyValuePair<string, object>("name", entityManifest.DisplayName),
+                        //new KeyValuePair<string, object>("formpresentation", 2)
+                    }
+                };
 
+                var createdForm = client.Create(newForm);
+            }
         }
 
+        public static XmlDocument AddAttributeToForm(XmlDocument formXml, Attribute attribute, CrmServiceClient client)
+        {
+            var rowContainer = formXml.SelectSingleNode("//rows");
+            var controlClassId = FormXrmControlClass.GetFormControlClassId(attribute);
+
+            var schemaName = string.IsNullOrEmpty(attribute.SchemaName)
+                ? CustomisationHelpers.CreateLogicalNameFromDisplayName(attribute.DisplayName, "awe")
+                : attribute.SchemaName;
+
+            rowContainer.InnerXml += $"<row><cell id=\"{{{Guid.NewGuid()}}}\" showlabel=\"true\" locklevel=\"0\">" +
+                                     $"<labels><label description=\"{attribute.DisplayName}\" languagecode=\"1033\" /></labels>" +
+                                     $"<control id=\"{schemaName}\" classid=\"{controlClassId:B}\" datafieldname=\"{schemaName}\" disabled=\"false\" /></cell></row>";
+            return formXml;
+        }
         
         public static string GetPublisherPrefixFromSolution(ConfigurationManifest manifest, CrmServiceClient client)
         {
