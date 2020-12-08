@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -19,6 +20,7 @@ using Microsoft.Xrm.Tooling.Connector;
 using Attribute = CloudAwesome.Xrm.Customisation.Sandbox.ConfigurationModels.Attribute;
 using PluginAssembly = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.PluginAssembly;
 using PrivilegeDepth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth;
+//using PrivilegeDepth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth;
 using ServiceEndpoint = CloudAwesome.Xrm.Customisation.Sandbox.EntityModel.ServiceEndpoint;
 
 namespace CloudAwesome.Xrm.Customisation.Sandbox
@@ -27,12 +29,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
     {
         static void Main(string[] args)
         {
-            //var client = new CrmServiceClient(
-            //    "AuthType=Office365;" +
-            //    "Username=arthur@cloudawesome.uk;" +
-            //    "Password='<T(},C>7D]#oNu,bgNuz7O5*EVv%n+d$S=?^';" +
-            //    "Url=https://awesome-sandbox.crm11.dynamics.com");
-
             var client = new CrmServiceClient(
                 "AuthType=ClientSecret;" +
                 "ClientId=70173e6e-3bd4-4ae0-a3b0-460cf3ae3e5d;" +
@@ -42,13 +38,27 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             //var manifest = GetPluginManifest("../../SampleSchemata/SampleManifest.xml");
             var configurationManifest = GetConfigurationManifest("../../SampleSchemata/configuration-manifest.xml");
 
+            //var request = new AssociateRequest()
+            //{
+            //    Target = new EntityReference("role",
+            //        Guid.Parse("b5f785b5-5f39-eb11-a813-0022484019a8")),
+            //    RelatedEntities = new EntityReferenceCollection()
+            //    {
+            //        new EntityReference("privilege",
+            //            Guid.Parse("886b280c-6396-4d56-a0a3-2c1b0a50ceb0"))
+            //    },
+            //    Relationship = new Relationship("roleprivileges_association")
+            //};
+            //var response = (AssociateResponse) client.Execute(request);
+
+
             // RegisterPlugins(manifest, client);
             // RegisterServiceEndPoints(manifest, client);
             CreateCrmCustomisations(configurationManifest, client);
             // MigrateBulkDeletionJobs
             // ConfigureSecurityFromManifest
             // ToggleProcessesFromManifest
-            
+
             Console.ReadKey();
         }
 
@@ -62,12 +72,21 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                 // 1. Apps
 
+                // - 1.1 Model-driven app
+                Console.WriteLine("Deleting Model Driven Apps");
+                foreach (var manifestApp in manifest.ModelDrivenApps)
+                {
+                    
+                }
+
+                // - 1.2 Sitemap
+
                 // 2. Entities
 
-                // 2.1 Views
-                // 2.2 Forms
-                // 2.3 Lookups/Relationships
-                // 2.4 Entities
+                // - 2.1 Views
+                // - 2.2 Forms
+                // - 2.3 Lookups/Relationships
+                // - 2.4 Entities
                 Console.WriteLine("Deleting Entities");
                 foreach (var manifestEntity in manifest.Entities)
                 {
@@ -139,36 +158,63 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
             // ii. Create customisations
 
             //CreateOptionSets(manifest, client);
-            // CreateSecurityRoles(manifest, client);
+            CreateSecurityRoles(manifest, client);
             //CreateEntityModel(manifest, client);
-            CreateModelDrivenApps(manifest, client);
+            //CreateModelDrivenApps(manifest, client);
 
             Console.WriteLine("All customisations processed!");
         }
 
         public static void CreateModelDrivenApps(ConfigurationManifest manifest, CrmServiceClient client)
         {
+            // TODO - all of this is hardcoded at present... But works =] Need to implement from manifest
             foreach (var app in manifest.ModelDrivenApps)
             {
-                var appEntity = new Microsoft.Xrm.Sdk.Entity("appmodule");
-                appEntity["name"] = app.Name;
-                appEntity["uniquename"] = app.UniqueName;
-                appEntity["webresourceid"] = Guid.Parse("953b9fac-1e5e-e611-80d6-00155ded156f");
+                // 1. Create sitemap
+                Console.WriteLine($"Creating sitemap {app.UniqueName}");
+                var sitemapXml = "<SiteMap IntroducedVersion=\"7.0.0.0\">\r\n        <Area Id=\"New_Area\" ResourceId=\"SitemapDesigner.NewArea\" DescriptionResourceId=\"SitemapDesigner.NewArea\" ShowGroups=\"true\" IntroducedVersion=\"7.0.0.0\">\r\n          <Group Id=\"New_Group\" ResourceId=\"SitemapDesigner.NewGroup\" DescriptionResourceId=\"SitemapDesigner.NewGroup\" IntroducedVersion=\"7.0.0.0\" IsProfile=\"false\" ToolTipResourseId=\"SitemapDesigner.Unknown\">\r\n            <SubArea Id=\"New_SubArea\" Icon=\"/_imgs/imagestrips/transparent_spacer.gif\" IntroducedVersion=\"7.0.0.0\" Entity=\"account\" Client=\"All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web\" AvailableOffline=\"true\" PassParams=\"false\" Sku=\"All,OnPremise,Live,SPLA\">\r\n              <Titles>\r\n                <Title LCID=\"1033\" Title=\"SomeAccounts\" />\r\n              </Titles>\r\n            </SubArea>\r\n            <SubArea Id=\"NewSubArea_144af212\" Icon=\"/_imgs/imagestrips/transparent_spacer.gif\" Entity=\"awe_laptop\" Client=\"All,Outlook,OutlookLaptopClient,OutlookWorkstationClient,Web\" AvailableOffline=\"true\" PassParams=\"false\" Sku=\"All,OnPremise,Live,SPLA\" />\r\n          </Group>\r\n          <Group Id=\"NewGroup_c7545867\" ResourceId=\"SitemapDesigner.NewGroup\" IsProfile=\"false\" ToolTipResourseId=\"SitemapDesigner.Unknown\" />\r\n        </Area>\r\n        <Area Id=\"NewArea_79abdc28\" ResourceId=\"SitemapDesigner.NewArea\" ShowGroups=\"false\" />\r\n      </SiteMap>";
 
+                var sitemap = new Microsoft.Xrm.Sdk.Entity("sitemap")
+                {
+                    ["sitemapnameunique"] = $"{app.UniqueName}SiteMap",
+                    ["sitemapxml"] = sitemapXml,
+                    ["sitemapname"] = $"{app.Name} Site Map",
+
+                };
+                var createdSitemap = client.Create(sitemap);
+
+                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                    createdSitemap, ComponentType.SiteMap);
+
+                // 2. Create app
+                Console.WriteLine($"Creating app {app.UniqueName}");
+                var appEntity = new Microsoft.Xrm.Sdk.Entity("appmodule")
+                {
+                    ["name"] = app.Name,
+                    ["uniquename"] = app.UniqueName,
+                    ["webresourceid"] = Guid.Parse("953b9fac-1e5e-e611-80d6-00155ded156f"),
+                    ["clienttype"] = 4 // UCI (forces it not to be created in the deprecated web interface)
+                };
                 var createdApp = client.Create(appEntity);
 
+                SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+                    createdApp, ComponentType.AppModule);
+
+                Console.WriteLine($"Adding components to app {app.UniqueName}");
+                // 3. Add entities and sitemap 
                 var addComponents = new AddAppComponentsRequest()
                 {
                     AppId = createdApp,
                     Components = new EntityReferenceCollection()
                     {
                         new EntityReference("awe_laptop"),
-                        new EntityReference("awe_mouse")
+                        new EntityReference("awe_mouse"),
+                        new EntityReference("account"),
+                        new EntityReference("sitemap", createdSitemap)
                     }
                 };
                 client.Execute(addComponents);
-
-                // TODO - **** Need to find out how to create an app's SiteMap!!!
+                client.Execute(new PublishAllXmlRequest());
 
                 //var appValidationRequest = new ValidateAppRequest()
                 //{
@@ -181,8 +227,6 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                 //    // Check for ErrorType of "error", not just "warning" which shows stuff you don't care about ;)
                 //    throw new Exception($"Validation of model driven app {app.Name} threw {validationResponse.AppValidationResponse.ValidationIssueList.Length} errors");
                 //}
-
-
 
             }
         }
@@ -263,6 +307,7 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
                         </tab>
                       </tabs>
                     </form>";
+
                 var formXml = new XmlDocument();
                 formXml.LoadXml(rawFormXml);
                 
@@ -289,9 +334,12 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
 
                     if (attributeManifest.AddToForm)
                     {
+                        // TODO - Ensure you add the primary name attribute too! (and perhaps ownerid)
                         AddAttributeToForm(formXml, attributeManifest, client);
                         Console.WriteLine($"            Attribute '{attributeManifest.DisplayName}' added to form");
                     }
+
+                    // TODO - Views
                 }
 
                 var newForm = new Microsoft.Xrm.Sdk.Entity("systemform")
@@ -339,46 +387,52 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         public static void CreateSecurityRoles(ConfigurationManifest manifest, CrmServiceClient client)
         {
             // TODO - Doesn't work yet... ;)
-            foreach (var securityRole in manifest.SecurityRoles)
+            //foreach (var securityRole in manifest.SecurityRoles)
+            //{
+            //var role = new Microsoft.Xrm.Sdk.Entity("role")
+            //{
+            //    ["name"] = securityRole.Name,
+            //    ["businessunitid"] = new EntityReference("businessunit",
+            //        Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"))
+            //};
+
+            //var createdRole = client.Create(role);
+
+            //if (!string.IsNullOrEmpty(manifest.SolutionName))
+            //{
+            //    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
+            //        createdRole, ComponentType.Role);
+            //}
+
+            //foreach (var privilege in securityRole.Privileges)
+            //{
+            //var retrievePrivilegesByName = new QueryExpression("privilege")
+            //{
+            //    ColumnSet = new ColumnSet(true),
+            //    Criteria = new FilterExpression
+            //    {
+            //        Conditions =
+            //        {
+            //            new ConditionExpression("name", ConditionOperator.Equal, "prvReadAccount") //privilege)
+            //        }
+            //    }
+            //};
+            //var privilegeId = client.RetrieveMultiple(retrievePrivilegesByName).Entities.FirstOrDefault();
+
+            var addPrivilege = new AddPrivilegesRoleRequest()
             {
-                var role = new Microsoft.Xrm.Sdk.Entity("role");
-                role["name"] = securityRole.Name;
-                role["businessunitid"] =
-                    new EntityReference("businessunit", Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
-
-                var createdRole = client.Create(role);
-
-                if (!string.IsNullOrEmpty(manifest.SolutionName))
+                //RoleId = createdRole,
+                RoleId = Guid.Parse("b5f785b5-5f39-eb11-a813-0022484019a8"),
+                Privileges = new[]
                 {
-                    SolutionWrapper.AddSolutionComponent(client, manifest.SolutionName,
-                        createdRole, ComponentType.Role);
-                }
-
-                foreach (var privilege in securityRole.Privileges)
-                {
-                    var retrievePrivilegesByName = new QueryExpression("privilege")
+                    new RolePrivilege()
                     {
-                        ColumnSet = new ColumnSet("name"),
-                        Criteria = new FilterExpression
-                        {
-                            Conditions =
-                            {
-                                new ConditionExpression("name", ConditionOperator.Equal, privilege)
-                            }
-                        }
-                    };
-                    var privilegeId = client.RetrieveMultiple(retrievePrivilegesByName).Entities.FirstOrDefault().Id;
-
-                    var rolePrivilege = new RolePrivilege((int) PrivilegeDepth.Global, privilegeId,
-                        Guid.Parse("58457364-2b01-eb11-a812-000d3a7fccf0"));
-                    var addPrivilege = new AddPrivilegesRoleRequest()
-                    {
-                        RoleId = createdRole,
-                        Privileges = new[] {rolePrivilege}
-                    };
-                    client.Execute(addPrivilege);
+                        PrivilegeId = Guid.Parse("886b280c-6396-4d56-a0a3-2c1b0a50ceb0"),
+                        Depth = Microsoft.Crm.Sdk.Messages.PrivilegeDepth.Deep
+                    }
                 }
-            }
+            };
+            client.Execute(addPrivilege);
         }
 
         public static void CreateOptionSets(ConfigurationManifest manifest, CrmServiceClient client)
