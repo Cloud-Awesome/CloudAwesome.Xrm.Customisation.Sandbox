@@ -31,9 +31,9 @@ namespace CloudAwesome.Xrm.Customisation.Sandbox
         {
             var client = new CrmServiceClient(
                 "AuthType=ClientSecret;" +
-                "ClientId=70173e6e-3bd4-4ae0-a3b0-460cf3ae3e5d;" +
-                "ClientSecret='W.Ykma-6DNXxQOmVX96h151Si6_4Pc44x.';" +
-                "Url=https://awesome-sandbox.crm11.dynamics.com");
+                "ClientId=....................;" +
+                "ClientSecret='....................';" +
+                "Url=https://the-sandbox.crm11.dynamics.com");
 
             //var manifest = GetPluginManifest("../../SampleSchemata/SampleManifest.xml");
             var configurationManifest = GetConfigurationManifest("../../SampleSchemata/configuration-manifest.xml");
