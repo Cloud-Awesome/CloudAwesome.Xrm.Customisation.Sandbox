@@ -7,7 +7,7 @@ steps:
 
 - task: XplatGenerateReleaseNotes@3
   inputs:
-    outputfile: '''$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'''
+    outputfile: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
     templateLocation: 'File'
     templatefile: 'template-release-notes.md'
     sortWi: true
