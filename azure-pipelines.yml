@@ -9,7 +9,7 @@ steps:
   inputs:
     outputfile: '''$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'''
     templateLocation: 'File'
-    templatefile: 'CloudAwesome.Xrm.Customisation.Sandbox\pipelines\template-release-notes.md'
+    templatefile: 'CloudAwesome.Xrm.Customisation.Sandbox\template-release-notes.md'
     sortWi: true
     dumpPayloadToConsole: false
     dumpPayloadToFile: false
