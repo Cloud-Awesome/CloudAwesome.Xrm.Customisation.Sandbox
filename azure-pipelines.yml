@@ -24,16 +24,16 @@ steps:
     ArtifactName: 'drop'
     publishLocation: 'Container'
 
-- task: WikiUpdaterTask@1
-  inputs:
-    repo: 'https://github.com/Cloud-Awesome/CloudAwesome.Xrm.Customisation.Sandbox'
-    branch: 'master'
-    filename: 'documentation/ReleaseNotes_$(build.buildnumber).md'
-    replaceFile: true
-    dataIsFile: true
-    sourceFile: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
-    message: 'Release notes for Build $(build.buildnumber)'
-    gitname: 'Azure Pipelines'
-    gitemail: 'azure-pipelines@cloudawesome.uk'
-    useAgentToken: true
-    localpath: '$(System.DefaultWorkingDirectory)\repo'
+#- task: WikiUpdaterTask@1
+#  inputs:
+#    repo: 'https://github.com/Cloud-Awesome/CloudAwesome.Xrm.Customisation.Sandbox'
+#    branch: 'master'
+#    filename: 'documentation/ReleaseNotes_$(build.buildnumber).md'
+#    replaceFile: true
+#    dataIsFile: true
+#    sourceFile: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
+#    message: 'Release notes for Build $(build.buildnumber)'
+#    gitname: 'Azure Pipelines'
+#    gitemail: 'azure-pipelines@cloudawesome.uk'
+#    useAgentToken: true
+#    localpath: '$(System.DefaultWorkingDirectory)\repo'
