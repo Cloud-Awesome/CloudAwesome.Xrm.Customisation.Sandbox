@@ -10,18 +10,23 @@ steps:
     outputfile: '''$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'''
     templateLocation: 'InLine'
     inlinetemplate: |
-      # Release notes for build $(Build.DefinitionName)
-      **Build Number**  : $($build.buildnumber)
-      **Build started** : $("{0:dd/MM/yy HH:mm:ss}" -f [datetime]$build.startTime)
-      **Source Branch** : $($build.sourceBranch)
-      ### Associated work items
-      @@WILOOP@@
-      * **$($widetail.fields.'System.WorkItemType') $($widetail.id)** [Assigned by: $($widetail.fields.'System.AssignedTo')]     $($widetail.fields.'System.Title')
-      @@WILOOP@@
-      ### Associated change sets/commits
-      @@CSLOOP@@
-      * **ID $($csdetail.changesetid)$($csdetail.commitid)** $($csdetail.comment)
-      @@CSLOOP@@
+      ## Build Number: {{buildDetails.id}}
+      
+      {{forEach commits}} {{if isFirst}} Associated commits {{/if}}
+      
+      ** ID {{this.id}} **
+      Message: {{this.message}}
+      Commited by: {{this.author.displayName}} 
+      {{/forEach}}
+      
+      {{forEach workItems}} {{if isFirst}} Associated Work Items {{/if}}
+      
+      ** {{this.id}} {{lookup this.fields 'System.Title'}} **
+      Type {{lookup this.fields 'System.WorkItemType'}}
+      Tags {{lookup this.fields 'System.Tags'}}
+      Assigned {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}} 
+      
+      {{/forEach}}
     sortWi: true
     dumpPayloadToConsole: false
     dumpPayloadToFile: false
