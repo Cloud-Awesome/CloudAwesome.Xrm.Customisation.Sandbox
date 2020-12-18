@@ -1,14 +1,15 @@
-## Build Number: {{buildDetails.id}}
+## Build: {{buildDetails.name}}
 
-{{#forEach commits}} {{#if isFirst}}### Associated commits (only shown if CS) {{/if}}
+{{#forEach workItems}} {{#if isFirst}}## Associated Work Items {{/if}}
 
-** ID{{this.id}}**
-Message: {{this.message}}
-Commited by: {{this.author.displayName}} {{/forEach}}
+**{{this.id}} {{lookup this.fields 'System.Title'}}**<br/>
+WIT {{lookup this.fields 'System.WorkItemType'}}<br/>
+Tags {{lookup this.fields 'System.Tags'}}<br/>
+{{/forEach}}
 
-{{#forEach workItems}} {{#if isFirst}}## Associated Work Items (only shown if WI) {{/if}}
+{{#forEach commits}} {{#if isFirst}}## Associated commits {{/if}}
 
-{{this.id}} {{lookup this.fields 'System.Title'}}
-WIT {{lookup this.fields 'System.WorkItemType'}}
-Tags {{lookup this.fields 'System.Tags'}}
-Assigned {{#with (lookup this.fields 'System.AssignedTo')}} {{displayName}} {{/with}} {{/forEach}}
+**{{this.message}}**<br/>
+ID {{this.id}}<br/>
+{{/forEach}}
+
