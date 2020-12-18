@@ -2,7 +2,7 @@
 
 {{forEach commits}} {{if isFirst}} Associated commits {{/if}}
 
-**ID {{this.id}}**
+ID {{this.id}}
 Message: {{this.message}}
 Commited by: {{this.author.displayName}} 
 {{/forEach}}
