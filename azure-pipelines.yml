@@ -26,10 +26,10 @@ steps:
 
 - task: WikiUpdaterTask@1
   inputs:
-    repo: 'https://dev.azure.com/bininja-sandbox/_git/PipelineTesterWebApp'
+    repo: 'https://github.com/Cloud-Awesome/CloudAwesome.Xrm.Customisation.Sandbox'
     branch: 'master'
-    filename: 'documentation/$(BranchName)/ReleaseNotes_$(build.buildnumber).md'
-    replaceFile: True
+    filename: 'documentation/ReleaseNotes_$(build.buildnumber).md'
+    replaceFile: true
     dataIsFile: true
     sourceFile: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
     message: 'Release notes for Build $(build.buildnumber)'
