@@ -1,6 +1,6 @@
 ## Build Number: {{buildDetails.id}}
 
-{{forEach commits}} {{if isFirst}} **Associated commits** {{/if}}
+{{forEach commits}} {{if isFirst}} Associated commits {{/if}}
 
 **ID {{this.id}}**
 Message: {{this.message}}
