@@ -23,3 +23,17 @@ steps:
     PathtoPublish: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
     ArtifactName: 'drop'
     publishLocation: 'Container'
+
+- task: WikiUpdaterTask@1
+  inputs:
+    repo: 'https://dev.azure.com/bininja-sandbox/_git/PipelineTesterWebApp'
+    branch: 'master'
+    filename: 'documentation/$(BranchName)/ReleaseNotes_$(build.buildnumber).md'
+    replaceFile: True
+    dataIsFile: true
+    sourceFile: '$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'
+    message: 'Release notes for Build $(build.buildnumber)'
+    gitname: 'Azure Pipelines'
+    gitemail: 'azure-pipelines@cloudawesome.uk'
+    useAgentToken: true
+    localpath: '$(System.DefaultWorkingDirectory)\repo'
