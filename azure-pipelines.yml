@@ -9,7 +9,7 @@ steps:
   inputs:
     outputfile: '''$(Build.ArtifactStagingDirectory)\ReleaseNotes_$(build.buildnumber).md'''
     templateLocation: 'File'
-    templatefile: 'pipelines/template-release-notes.md'
+    templatefile: 'pipelines\template-release-notes.md'
     sortWi: true
     dumpPayloadToConsole: false
     dumpPayloadToFile: false
