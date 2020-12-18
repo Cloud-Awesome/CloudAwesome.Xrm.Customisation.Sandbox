@@ -1,6 +1,6 @@
 ## Build: {{buildDetails.name}}
 
-{{#forEach workItems}} {{#if isFirst}}## Associated Work Items {{/if}}
+{{#forEach workItems}} {{#if isFirst}}## Associated work items {{/if}}
 
 **{{this.id}} {{lookup this.fields 'System.Title'}}**<br/>
 WIT {{lookup this.fields 'System.WorkItemType'}}<br/>
